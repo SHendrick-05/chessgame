@@ -87,6 +87,7 @@
             this.wRh = new System.Windows.Forms.PictureBox();
             this.bRh = new System.Windows.Forms.PictureBox();
             this.wPb = new System.Windows.Forms.PictureBox();
+            this.moves = new System.Windows.Forms.TextBox();
             this.side.SuspendLayout();
             this.top.SuspendLayout();
             this.rank.SuspendLayout();
@@ -128,6 +129,7 @@
             // 
             // side
             // 
+            this.side.Controls.Add(this.moves);
             this.side.Controls.Add(this.turnbox);
             this.side.Controls.Add(this.turntext);
             this.side.Controls.Add(this.closeboard);
@@ -866,6 +868,19 @@
             this.wPb.TabStop = false;
             this.wPb.MouseClick += new System.Windows.Forms.MouseEventHandler(this.PieceClick);
             // 
+            // moves
+            // 
+            this.moves.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(40)))), ((int)(((byte)(57)))));
+            this.moves.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.moves.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.moves.ForeColor = System.Drawing.SystemColors.Control;
+            this.moves.Location = new System.Drawing.Point(12, 172);
+            this.moves.Multiline = true;
+            this.moves.Name = "moves";
+            this.moves.ReadOnly = true;
+            this.moves.Size = new System.Drawing.Size(185, 334);
+            this.moves.TabIndex = 4;
+            // 
             // Board
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -984,5 +999,6 @@
         private System.Windows.Forms.Button closeboard;
         private System.Windows.Forms.TextBox turnbox;
         private System.Windows.Forms.Label turntext;
+        private System.Windows.Forms.TextBox moves;
     }
 }
