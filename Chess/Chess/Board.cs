@@ -113,7 +113,7 @@ namespace Chess
         //
 
 
-        private string[] GetMoveText(bool attack, TableLayoutPanelCellPosition pos, ChessPiece piece)
+        private string[] GetMoveText(bool attack, TableLayoutPanelCellPosition pos, ChessPiece piece, bool Check)
         {
             string rS = "abcdefgh", fS = "87654321";
             Rank r = piece.pieceRank;
@@ -125,7 +125,8 @@ namespace Chess
             string Bfile = !clear[1] && P ? fS[pos.Row].ToString() : "";
             char rank = rS[piece.pos.Column];
             char file = fS[piece.pos.Row];
-            return new string[1] { pieceRank+Brank+Bfile+attC+rank+file };
+            string check = Check ? "+" : "";
+            return new string[1] { pieceRank+Brank+Bfile+attC+rank+file+check };
 
         }
         //
@@ -135,8 +136,8 @@ namespace Chess
         // Vars
         internal ChessPiece selectedPiece;
         internal bool whiteTurn = true;
-        internal bool isMoving;
-
+        internal bool isMoving = false;
+        internal bool isCheck = false;
         //
         // Boxes to indicate available moves
         //
@@ -260,9 +261,13 @@ namespace Chess
                 turnbox.Text = "BLACK";
             isMoving = false;
             //
+            // Get check
+            //
+            bool[] isCheck = Calcs.CheckCheck(playBoard);
+            //
             // Update moves
             //
-            moves.Lines = moves.Lines.Concat(GetMoveText(attack,selpos,selectedPiece)).ToArray();
+            moves.Lines = moves.Lines.Concat(GetMoveText(attack,selpos,selectedPiece, isCheck.Contains(true) )).ToArray();
             //
             // Clear selected piece
             //
