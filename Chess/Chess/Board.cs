@@ -46,8 +46,8 @@ namespace Chess
                     PictureBox box = (PictureBox)playBoard.GetControlFromPosition(i, j);
                     if (box != null)
                     {
-                        ChessPiece piece = new ChessPiece(box);
-                        MoveCalcs.pieces.Add(piece);
+                        ChessPiece piece = new ChessPiece(box, playBoard);
+                        Calcs.pieces.Add(piece);
                     }
                 }
             }
@@ -78,6 +78,55 @@ namespace Chess
         private void closeboard_Click(object sender, EventArgs e) 
         {
             Close();
+        }
+        //
+        // Basic check
+        //
+        private bool[] isClear(ChessPiece piece) // Returns [rank, file], [Col, row]
+        {
+            bool colB = true, rowB = true;
+            int col = piece.pos.Column, row = piece.pos.Row;
+            for (int i = 0; i < 8; i++)
+            {
+                PictureBox boxC = (PictureBox)playBoard.GetControlFromPosition(row, i);
+                PictureBox boxR = (PictureBox)playBoard.GetControlFromPosition(i, col);
+                ChessPiece pcC = Calcs.CheckPiece(boxC, playBoard);
+                ChessPiece pcR = Calcs.CheckPiece(boxR,playBoard);
+                if (boxC != null && pcC.pieceRank == piece.pieceRank
+                    && pcC.isWhite == piece.isWhite
+                    && pcC != piece)
+                {
+                    colB = false;
+                }
+                if (boxR != null && pcR.pieceRank == piece.pieceRank
+                    && pcR.isWhite == piece.isWhite
+                    && pcR != piece)
+                {
+                    rowB = false;
+                }
+            }
+            return new bool[2] { colB, rowB };
+        }
+
+        //
+        // Get move
+        //
+
+
+        private string[] GetMoveText(bool attack, TableLayoutPanelCellPosition pos, ChessPiece piece)
+        {
+            string rS = "abcdefgh", fS = "87654321";
+            Rank r = piece.pieceRank;
+            bool P = r != Rank.PAWN;
+            string pieceRank = P ? r.ToString()[0].ToString() : "";
+            string attC = attack ? "x" : "";
+            bool[] clear = isClear(piece);
+            string Brank = !clear[0] && (P || attack) ? rS[pos.Column].ToString() : "";
+            string Bfile = !clear[1] && P ? fS[pos.Row].ToString() : "";
+            char rank = rS[piece.pos.Column];
+            char file = fS[piece.pos.Row];
+            return new string[1] { pieceRank+Brank+Bfile+attC+rank+file };
+
         }
         //
         // Piece moving
@@ -122,65 +171,10 @@ namespace Chess
             }
         }
         //
-        // Moving, (Attack is a check)
+        // Clear temp boxes
         //
-        internal void AttackMove(object sender, MouseEventArgs e)
+        internal void ClearTempBoxes()
         {
-            PictureBox box = (PictureBox)sender;
-            if (selectedPiece != null
-                && box.BackColor == Color.Blue)
-            {
-                MovePiece(sender, e);
-            }
-            else return;
-        }
-        //
-        // Main move function
-        //
-        internal void MovePiece(object sender, MouseEventArgs e)
-        {
-            if (selectedPiece != null)
-            {
-                //
-                // Get vars + Positions
-                //
-                PictureBox box = (PictureBox)sender;
-                TableLayoutPanelCellPosition pos = playBoard.GetPositionFromControl(box);
-                TableLayoutPanelCellPosition selpos = playBoard.GetPositionFromControl(selectedPiece.box);
-                //
-                // Passant check before move
-                //
-                if (box.Name.Contains("DEL"))
-                    playBoard.Controls.Remove
-                        (playBoard.GetControlFromPosition
-                        (pos.Column, selpos.Row));
-                //
-                // Move the piece.
-                //
-                playBoard.Controls.Remove(box);
-                playBoard.Controls.Add(selectedPiece.box, pos.Column, pos.Row);
-                //
-                // Pawn checks
-                //
-                foreach (ChessPiece pc in MoveCalcs.pieces)
-                {
-                    if (pc.isWhite == selectedPiece.isWhite)
-                        pc.PassElig = false;
-                }
-                if (Math.Abs(selpos.Row - pos.Row) == 2)
-                    selectedPiece.PassElig = true;
-                Console.WriteLine(selectedPiece.PassElig);
-                selectedPiece.CheckPromote(playBoard);
-                selectedPiece.canDouble = false;
-                //
-                // Clear selected piece
-                //
-                selectedPiece = null;
-                
-            }
-            //
-            // Remove temp boxes
-            //
             for (int i = 0; i < 8; i++)
             {
                 for (int j = 0; j < 8; j++)
@@ -188,20 +182,91 @@ namespace Chess
                     PictureBox tbox = (PictureBox)playBoard.GetControlFromPosition(i, j);
                     if (tbox != null)
                     {
-                        tbox.BackColor = Color.Transparent;
                         if (tbox.Name.Contains("DEL"))
                             playBoard.Controls.Remove(tbox);
+                        tbox.BackColor = Color.Transparent;
                     }
                 }
             }
+        }
+        //
+        // Moving for attacking pieces
+        //
+        internal void AttackMove(object sender, MouseEventArgs e)
+        {
+            PictureBox box = (PictureBox)sender;
+            if (selectedPiece.box == box)
+            {
+                selectedPiece = null;
+                isMoving = false;
+                ClearTempBoxes();
+            }
+            if (selectedPiece != null
+                && box.BackColor == Color.DarkGray)
+            {
+                MovePiece(sender, e, true);
+            }
+            else return;
+        }
+        //
+        // Main move function
+        //
+        internal void MovePiece(object sender, MouseEventArgs e, bool attack=false)
+        {
+            //
+            // Get vars + Positions
+            //
+            PictureBox box = (PictureBox)sender;
+            TableLayoutPanelCellPosition pos = playBoard.GetPositionFromControl(box);
+            TableLayoutPanelCellPosition selpos = selectedPiece.pos;
+            //
+            // Passant check before move
+            //
+            if (box.Name.Contains("DEL") && selectedPiece.pieceRank == Rank.PAWN)
+                playBoard.Controls.Remove
+                    (playBoard.GetControlFromPosition
+                    (pos.Column, selpos.Row));
+            //
+            // Move the piece.
+            //
+            playBoard.Controls.Remove(box);
+            playBoard.Controls.Add(selectedPiece.box, pos.Column, pos.Row);
+            //
+            // Pawn checks
+            //
+            foreach (ChessPiece pc in Calcs.pieces)
+            {
+                if (pc.isWhite == selectedPiece.isWhite)
+                    pc.PassElig = false;
+            }
+            if (selectedPiece.pieceRank == Rank.PAWN)
+            {
+                if (Math.Abs(selpos.Row - pos.Row) == 2)
+                    selectedPiece.PassElig = true;
+                selectedPiece.CheckPromote(playBoard);
+                selectedPiece.canDouble = false;
+            }
+            //
+            // Remove temp boxes
+            //
+            ClearTempBoxes();
             //
             // Change turn text
             //
+            whiteTurn = !whiteTurn;
             if (whiteTurn)
                 turnbox.Text = "WHITE";
             else
                 turnbox.Text = "BLACK";
             isMoving = false;
+            //
+            // Update moves
+            //
+            moves.Lines = moves.Lines.Concat(GetMoveText(attack,selpos,selectedPiece)).ToArray();
+            //
+            // Clear selected piece
+            //
+            selectedPiece = null;
         }
         //
         // Handle piece clicks
@@ -212,7 +277,7 @@ namespace Chess
             // Discard moves/wrong clicks
             //
             PictureBox box = (PictureBox)sender;
-            ChessPiece selpiece = MoveCalcs.CheckPiece(box);
+            ChessPiece selpiece = Calcs.CheckPiece(box, playBoard);
             if (isMoving)
             {
                 AttackMove(sender, e);
@@ -220,19 +285,18 @@ namespace Chess
             }
             else if (whiteTurn != selpiece.isWhite) return;
             isMoving = true;
-            
             //
             // Get moves + Calculate
             // Variables
             selectedPiece = selpiece;
-            List<Point> moves = MoveCalcs.CalcMovesG(selpiece, playBoard);
+            List<Point> moves = Calcs.CalcMovesG(selpiece, playBoard);
             List<Point> discard = new List<Point>();
             foreach (Point pt in moves)
             {
                 int col = pt.X;
                 int row = pt.Y;
                 PictureBox cont = (PictureBox)playBoard.GetControlFromPosition(pt.X, pt.Y);
-                ChessPiece contp = MoveCalcs.CheckPiece(cont);
+                ChessPiece contp = Calcs.CheckPiece(cont, playBoard);
                 //
                 // Discard unusable moves
                 //
@@ -248,7 +312,6 @@ namespace Chess
                 isMoving = false;
                 return;
             }
-            whiteTurn = !whiteTurn;
         }
            
         //

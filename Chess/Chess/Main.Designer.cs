@@ -33,6 +33,7 @@
             this.title = new System.Windows.Forms.Label();
             this.play = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
+            this.source = new System.Windows.Forms.Button();
             this.top.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -79,7 +80,7 @@
             this.play.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.play.Font = new System.Drawing.Font("Century Gothic", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.play.ForeColor = System.Drawing.SystemColors.Control;
-            this.play.Location = new System.Drawing.Point(257, 318);
+            this.play.Location = new System.Drawing.Point(18, 318);
             this.play.Name = "play";
             this.play.Size = new System.Drawing.Size(178, 42);
             this.play.TabIndex = 1;
@@ -98,8 +99,21 @@
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(680, 228);
             this.textBox1.TabIndex = 2;
-            this.textBox1.Text = "-Multiplayer only for the moment\r\n-Singleplayer PC not developed yet\r\n-Game is a " +
-    "WIP\r\n\r\nBy Sean Hendrick 10P1";
+            this.textBox1.Text = "-Pieces are moving now\r\n\r\n-TODO:\r\nChecks and Checkmates\r\nStalemate\r\nEdge cases\r\nC" +
+    "hoice in pawn promotion\r\n\r\nBy Sean Hendrick 10P1";
+            // 
+            // source
+            // 
+            this.source.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.source.Font = new System.Drawing.Font("Century Gothic", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.source.ForeColor = System.Drawing.SystemColors.Control;
+            this.source.Location = new System.Drawing.Point(514, 318);
+            this.source.Name = "source";
+            this.source.Size = new System.Drawing.Size(178, 42);
+            this.source.TabIndex = 3;
+            this.source.Text = "View the source";
+            this.source.UseVisualStyleBackColor = true;
+            this.source.Click += new System.EventHandler(this.source_Click);
             // 
             // Main
             // 
@@ -107,6 +121,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(44)))), ((int)(((byte)(51)))));
             this.ClientSize = new System.Drawing.Size(704, 405);
+            this.Controls.Add(this.source);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.play);
             this.Controls.Add(this.top);
@@ -127,6 +142,7 @@
         private System.Windows.Forms.Button close;
         private System.Windows.Forms.Label title;
         private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button source;
 
     }
 }
