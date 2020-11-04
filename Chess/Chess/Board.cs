@@ -138,6 +138,7 @@ namespace Chess
         internal bool whiteTurn = true;
         internal bool isMoving = false;
         internal bool isCheck = false;
+        internal ChessPiece checkingPiece;
         //
         // Boxes to indicate available moves
         //
@@ -263,11 +264,16 @@ namespace Chess
             //
             // Get check
             //
-            bool[] isCheck = Calcs.CheckCheck(playBoard);
+            ChessPiece[] isCheckT = Calcs.CheckCheck(playBoard);
+            bool isCheckB = isCheckT.Any(i => i != null);
+            isCheck = isCheckB;
+            if (isCheckT.All(i => i != null)) throw new Exception("Critical error: Both kings in check");
+            if (isCheckB) checkingPiece = isCheckT.First(i => i != null);
+
             //
             // Update moves
             //
-            moves.Lines = moves.Lines.Concat(GetMoveText(attack,selpos,selectedPiece, isCheck.Contains(true) )).ToArray();
+            moves.Lines = moves.Lines.Concat(GetMoveText(attack,selpos,selectedPiece,isCheckB)).ToArray();
             //
             // Clear selected piece
             //
@@ -294,7 +300,7 @@ namespace Chess
             // Get moves + Calculate
             // Variables
             selectedPiece = selpiece;
-            List<Point> moves = Calcs.CalcMovesG(selpiece, playBoard);
+            List<Point> moves = Calcs.CalcMovesG(selpiece, playBoard, checkingPiece);
             List<Point> discard = new List<Point>();
             foreach (Point pt in moves)
             {
