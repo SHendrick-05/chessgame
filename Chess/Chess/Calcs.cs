@@ -54,7 +54,6 @@ namespace Chess
             ChessPiece WK = pieces[0], BK = pieces[1];
             foreach (ChessPiece pc in pieces)
             {
-                Console.WriteLine(pc.pieceRank);
                 if (pc.pieceRank == Rank.KING)
                 {
                     if (pc.isWhite)
@@ -78,13 +77,23 @@ namespace Chess
                 
             }
             return new List<ChessPiece>[2] { WC, BC };
+            
         }
         //
         // CM Check
         //
-        static internal bool[] CMCheck(TableLayoutPanel board, List<ChessPiece>[] Checks)
+        static internal bool[] CMCheck(TableLayoutPanel board, List<ChessPiece>[] Checks) // [White,black], returns if checkmate.
         {
-            throw new NotImplementedException();
+            List<Point> WM = new List<Point>(), BM = new List<Point>();
+            foreach (ChessPiece pc in pieces)
+            {
+                if (pc.isWhite)
+                    WM.Concat(CalcMovesG(pc, board, Checks[0]));
+                else
+                    BM.Concat(CalcMovesG(pc, board, Checks[1]));
+            }
+            return new bool[2] { WM.Count == 0, BM.Count == 0 };
+
         }
         //[[
         // Move calcs
@@ -310,34 +319,59 @@ namespace Chess
         //
         // Public calc interface
         //
-        static public List<Point> CalcMovesG(ChessPiece piece, TableLayoutPanel board, List<ChessPiece> checkingPieces=null)
+        static public List<Point> CalcMovesG(ChessPiece piece, TableLayoutPanel board)
         {
             List<Point> moves;
             switch (piece.pieceRank)
             { // Access rank-specific methods
                 case Rank.PAWN:
-                    moves =  CalcPawn(piece, board);
+                    moves = CalcPawn(piece, board);
                     break;
                 case Rank.ROOK:
-                    moves =  CalcRook(piece, board);
+                    moves = CalcRook(piece, board);
                     break;
                 case Rank.NIGH:
-                    moves =  CalcKnight(piece, board);
+                    moves = CalcKnight(piece, board);
                     break;
                 case Rank.BISH:
-                    moves =  CalcBishop(piece, board);
+                    moves = CalcBishop(piece, board);
                     break;
                 case Rank.QUEE:
-                    moves =  CalcQueen(piece, board);
+                    moves = CalcQueen(piece, board);
+                    break;
+                case Rank.KING:
+                    moves = CalcKing(piece, board);
                     break;
                 default:
-                    moves =  CalcKing(piece, board);
+                    moves = new List<Point>();
                     break;
             }
-            if (!checkingPieces.Any(i => i != null))
-                return moves;
-            
+            return moves;
+
         }
+        static public List<Point> CalcMovesG(ChessPiece piece, TableLayoutPanel board, List<ChessPiece> checkingPieces)
+        {
+            List<Point> movesTemp = CalcMovesG(piece, board);
+            if (checkingPieces.Count == 0) return movesTemp;
+            List<Point> moves2 = new List<Point>();
+            bool iW = piece.isWhite;
+            List<Point> otherMoves = new List<Point>();
+            foreach(ChessPiece pc in pieces)
+            {
+                if (pc.isWhite != iW)
+                    otherMoves.Concat(CalcMovesG(piece,board));
+            }
+
+            foreach (Point pt in movesTemp)
+            {
+                if (piece.pieceRank == Rank.KING && !otherMoves.Contains(pt))
+                    moves2.Add(pt);
+                if (checkingPieces.FindAll(i => i.posPT == pt).Count == checkingPieces.Count)
+                    moves2.Add(pt);
+            }
+            return moves2;
+        }
+
     }
     //
     // Piece class
@@ -363,6 +397,13 @@ namespace Chess
             get
             {
                 return board.GetPositionFromControl(box);
+            }
+        }
+        internal Point posPT
+        {
+            get
+            {
+                return new Point(pos.Column, pos.Row);
             }
         }
         internal Rank pieceRank
@@ -469,5 +510,13 @@ namespace Chess
 
     }
  
- 
+ * 
+ *             List<Point> WM = pieces.Where(p => p.isWhite)
+                .Select(piece => CalcMovesG(piece, board, Checks))
+                .SelectMany(x => x)
+                .ToList();
+            List<Point> BM = pieces.Where(p => !p.isWhite)
+                .Select(piece => CalcMovesG(piece, board, Checks))
+                .SelectMany(x => x)
+                .ToList();
  */
