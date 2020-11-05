@@ -47,9 +47,10 @@ namespace Chess
         //
         // Check check
         //
-        static internal bool[] CheckCheck(TableLayoutPanel board) // [White,Black], if team is in check
+        static internal List<ChessPiece>[] CheckCheck(TableLayoutPanel board) // [White,Black], if team is in check
         {
-            bool WC = false, BC = false;
+            List<ChessPiece> WC = new List<ChessPiece>();
+            List<ChessPiece> BC = new List<ChessPiece>();
             ChessPiece WK = pieces[0], BK = pieces[1];
             foreach (ChessPiece pc in pieces)
             {
@@ -71,12 +72,19 @@ namespace Chess
             {
                 List<Point> moves = CalcMovesG(pc, board);
                 if (moves.Contains(WP) && !pc.isWhite)
-                    WC = true;
+                    WC.Add(pc);
                 if (moves.Contains(BP) && pc.isWhite)
-                    BC = true;
+                    BC.Add(pc);
                 
             }
-            return new bool[2] { WC, BC };
+            return new List<ChessPiece>[2] { WC, BC };
+        }
+        //
+        // CM Check
+        //
+        static internal bool[] CMCheck(TableLayoutPanel board, List<ChessPiece>[] Checks)
+        {
+            throw new NotImplementedException();
         }
         //[[
         // Move calcs
@@ -302,23 +310,33 @@ namespace Chess
         //
         // Public calc interface
         //
-        static public List<Point> CalcMovesG(ChessPiece piece, TableLayoutPanel board)
+        static public List<Point> CalcMovesG(ChessPiece piece, TableLayoutPanel board, List<ChessPiece> checkingPieces=null)
         {
+            List<Point> moves;
             switch (piece.pieceRank)
             { // Access rank-specific methods
                 case Rank.PAWN:
-                    return CalcPawn(piece, board);
+                    moves =  CalcPawn(piece, board);
+                    break;
                 case Rank.ROOK:
-                    return CalcRook(piece, board);
+                    moves =  CalcRook(piece, board);
+                    break;
                 case Rank.NIGH:
-                    return CalcKnight(piece, board);
+                    moves =  CalcKnight(piece, board);
+                    break;
                 case Rank.BISH:
-                    return CalcBishop(piece, board);
+                    moves =  CalcBishop(piece, board);
+                    break;
                 case Rank.QUEE:
-                    return CalcQueen(piece, board);
+                    moves =  CalcQueen(piece, board);
+                    break;
                 default:
-                    return CalcKing(piece, board);
+                    moves =  CalcKing(piece, board);
+                    break;
             }
+            if (!checkingPieces.Any(i => i != null))
+                return moves;
+            
         }
     }
     //
