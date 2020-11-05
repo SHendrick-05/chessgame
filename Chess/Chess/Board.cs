@@ -113,7 +113,7 @@ namespace Chess
         //
 
 
-        private string[] GetMoveText(bool attack, TableLayoutPanelCellPosition pos, ChessPiece piece, bool Check)
+        private string[] GetMoveText(bool attack, TableLayoutPanelCellPosition pos, ChessPiece piece, bool Check, bool[] CM)
         {
             string rS = "abcdefgh", fS = "87654321";
             Rank r = piece.pieceRank;
@@ -125,8 +125,12 @@ namespace Chess
             string Bfile = !clear[1] && P ? fS[pos.Row].ToString() : "";
             char rank = rS[piece.pos.Column];
             char file = fS[piece.pos.Row];
-            string check = Check ? "+" : "";
-            return new string[1] { pieceRank+Brank+Bfile+attC+rank+file+check };
+            string check = Check && !CM.Any(i => i == true) ? "+" : "";
+            string sCM = CM.Any(i => i == true) ? "#" : "";
+            string winLine = "";
+            if (CM.Any(i => i == true)) winLine = CM[0] ? "0-1" : "1-0";
+            List<string> lines = new List<string>() { pieceRank+Brank+Bfile+attC+rank+file+check+sCM, winLine };
+            return lines.Where(i => i != "").ToArray();
 
         }
         //
@@ -138,7 +142,7 @@ namespace Chess
         internal bool whiteTurn = true;
         internal bool isMoving = false;
         internal bool isCheck = false;
-        internal ChessPiece checkingPiece;
+        internal List<ChessPiece> checkingPieces = new List<ChessPiece>();
         //
         // Boxes to indicate available moves
         //
@@ -264,16 +268,23 @@ namespace Chess
             //
             // Get check
             //
-            ChessPiece[] isCheckT = Calcs.CheckCheck(playBoard);
-            bool isCheckB = isCheckT.Any(i => i != null);
+            List<ChessPiece>[] isCheckT = Calcs.CheckCheck(playBoard);
+            bool isCheckB = isCheckT.Any(i => i.Count != 0);
+            if (isCheckB)
+            foreach (ChessPiece pc in isCheckT.First(i => i.Count != 0))
+            {
+                Console.WriteLine(pc.box.Name);
+            }
             isCheck = isCheckB;
-            if (isCheckT.All(i => i != null)) throw new Exception("Critical error: Both kings in check");
-            if (isCheckB) checkingPiece = isCheckT.First(i => i != null);
-
+            if (isCheckT.All(i => i.Count != 0)) throw new Exception("Critical error: Both kings in check");
+            //
+            // Get CM
+            //
+            bool[] isCM = Calcs.CMCheck(playBoard, isCheckT);
             //
             // Update moves
             //
-            moves.Lines = moves.Lines.Concat(GetMoveText(attack,selpos,selectedPiece,isCheckB)).ToArray();
+            moves.Lines = moves.Lines.Concat(GetMoveText(attack,selpos,selectedPiece,isCheckB,isCM)).ToArray();
             //
             // Clear selected piece
             //
@@ -300,7 +311,7 @@ namespace Chess
             // Get moves + Calculate
             // Variables
             selectedPiece = selpiece;
-            List<Point> moves = Calcs.CalcMovesG(selpiece, playBoard, checkingPiece);
+            List<Point> moves = Calcs.CalcMovesG(selpiece, playBoard, checkingPieces);
             List<Point> discard = new List<Point>();
             foreach (Point pt in moves)
             {
