@@ -51,6 +51,7 @@
       <DependentUpon>Board.cs</DependentUpon>
     </Compile>
     <Compile Include="Calcs.cs" />
+    <Compile Include="ChessPiece.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>

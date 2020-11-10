@@ -30,9 +30,10 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Board));
             this.side = new System.Windows.Forms.Panel();
+            this.moves = new System.Windows.Forms.TextBox();
             this.turnbox = new System.Windows.Forms.TextBox();
             this.turntext = new System.Windows.Forms.Label();
-            this.closeboard = new System.Windows.Forms.Button();
+            this.closeBoard = new System.Windows.Forms.Button();
             this.top = new System.Windows.Forms.Panel();
             this.title = new System.Windows.Forms.Label();
             this.rank = new System.Windows.Forms.Panel();
@@ -87,7 +88,8 @@
             this.wRh = new System.Windows.Forms.PictureBox();
             this.bRh = new System.Windows.Forms.PictureBox();
             this.wPb = new System.Windows.Forms.PictureBox();
-            this.moves = new System.Windows.Forms.TextBox();
+            this.winScreen = new System.Windows.Forms.Panel();
+            this.winText = new System.Windows.Forms.Label();
             this.side.SuspendLayout();
             this.top.SuspendLayout();
             this.rank.SuspendLayout();
@@ -125,6 +127,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.wRh)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.bRh)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.wPb)).BeginInit();
+            this.winScreen.SuspendLayout();
             this.SuspendLayout();
             // 
             // side
@@ -132,13 +135,26 @@
             this.side.Controls.Add(this.moves);
             this.side.Controls.Add(this.turnbox);
             this.side.Controls.Add(this.turntext);
-            this.side.Controls.Add(this.closeboard);
+            this.side.Controls.Add(this.closeBoard);
             this.side.Controls.Add(this.top);
             this.side.Dock = System.Windows.Forms.DockStyle.Left;
             this.side.Location = new System.Drawing.Point(0, 0);
             this.side.Name = "side";
             this.side.Size = new System.Drawing.Size(211, 597);
             this.side.TabIndex = 0;
+            // 
+            // moves
+            // 
+            this.moves.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(40)))), ((int)(((byte)(57)))));
+            this.moves.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.moves.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.moves.ForeColor = System.Drawing.SystemColors.Control;
+            this.moves.Location = new System.Drawing.Point(12, 172);
+            this.moves.Multiline = true;
+            this.moves.Name = "moves";
+            this.moves.ReadOnly = true;
+            this.moves.Size = new System.Drawing.Size(185, 334);
+            this.moves.TabIndex = 4;
             // 
             // turnbox
             // 
@@ -163,19 +179,20 @@
             this.turntext.TabIndex = 2;
             this.turntext.Text = "Current turn:";
             // 
-            // closeboard
+            // closeBoard
             // 
-            this.closeboard.Dock = System.Windows.Forms.DockStyle.Top;
-            this.closeboard.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.closeboard.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.closeboard.ForeColor = System.Drawing.SystemColors.Control;
-            this.closeboard.Location = new System.Drawing.Point(0, 96);
-            this.closeboard.Name = "closeboard";
-            this.closeboard.Size = new System.Drawing.Size(211, 65);
-            this.closeboard.TabIndex = 1;
-            this.closeboard.Text = "Back to menu";
-            this.closeboard.UseVisualStyleBackColor = true;
-            this.closeboard.Click += new System.EventHandler(this.closeboard_Click);
+            this.closeBoard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(44)))), ((int)(((byte)(51)))));
+            this.closeBoard.Dock = System.Windows.Forms.DockStyle.Top;
+            this.closeBoard.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.closeBoard.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.closeBoard.ForeColor = System.Drawing.SystemColors.Control;
+            this.closeBoard.Location = new System.Drawing.Point(0, 96);
+            this.closeBoard.Name = "closeBoard";
+            this.closeBoard.Size = new System.Drawing.Size(211, 65);
+            this.closeBoard.TabIndex = 1;
+            this.closeBoard.Text = "Back to menu";
+            this.closeBoard.UseVisualStyleBackColor = false;
+            this.closeBoard.Click += new System.EventHandler(this.closeboard_Click);
             // 
             // top
             // 
@@ -311,7 +328,6 @@
             // corner
             // 
             this.corner.BackColor = System.Drawing.Color.Black;
-            this.corner.Dock = System.Windows.Forms.DockStyle.Left;
             this.corner.ForeColor = System.Drawing.Color.White;
             this.corner.Location = new System.Drawing.Point(0, 0);
             this.corner.Name = "corner";
@@ -868,18 +884,25 @@
             this.wPb.TabStop = false;
             this.wPb.MouseClick += new System.Windows.Forms.MouseEventHandler(this.PieceClick);
             // 
-            // moves
+            // winScreen
             // 
-            this.moves.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(40)))), ((int)(((byte)(57)))));
-            this.moves.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.moves.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.moves.ForeColor = System.Drawing.SystemColors.Control;
-            this.moves.Location = new System.Drawing.Point(12, 172);
-            this.moves.Multiline = true;
-            this.moves.Name = "moves";
-            this.moves.ReadOnly = true;
-            this.moves.Size = new System.Drawing.Size(185, 334);
-            this.moves.TabIndex = 4;
+            this.winScreen.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(44)))), ((int)(((byte)(51)))));
+            this.winScreen.Controls.Add(this.winText);
+            this.winScreen.Location = new System.Drawing.Point(256, 234);
+            this.winScreen.Name = "winScreen";
+            this.winScreen.Size = new System.Drawing.Size(552, 91);
+            this.winScreen.TabIndex = 5;
+            // 
+            // winText
+            // 
+            this.winText.AutoSize = true;
+            this.winText.Font = new System.Drawing.Font("Lucida Sans", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.winText.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(120)))), ((int)(((byte)(138)))));
+            this.winText.Location = new System.Drawing.Point(152, 26);
+            this.winText.Name = "winText";
+            this.winText.Size = new System.Drawing.Size(249, 39);
+            this.winText.TabIndex = 0;
+            this.winText.Text = "TEAM_ WINS!";
             // 
             // Board
             // 
@@ -887,6 +910,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(34)))), ((int)(((byte)(40)))));
             this.ClientSize = new System.Drawing.Size(808, 597);
+            this.Controls.Add(this.winScreen);
             this.Controls.Add(this.playBoard);
             this.Controls.Add(this.file);
             this.Controls.Add(this.rank);
@@ -935,6 +959,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.wRh)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.bRh)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.wPb)).EndInit();
+            this.winScreen.ResumeLayout(false);
+            this.winScreen.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -996,9 +1022,11 @@
         private System.Windows.Forms.PictureBox bPc;
         private System.Windows.Forms.PictureBox bPb;
         private System.Windows.Forms.PictureBox bRh;
-        private System.Windows.Forms.Button closeboard;
+        private System.Windows.Forms.Button closeBoard;
         private System.Windows.Forms.TextBox turnbox;
         private System.Windows.Forms.Label turntext;
         private System.Windows.Forms.TextBox moves;
+        private System.Windows.Forms.Panel winScreen;
+        private System.Windows.Forms.Label winText;
     }
 }
