@@ -51,6 +51,8 @@ namespace Chess
                     }
                 }
             }
+            Calcs.BK = Calcs.CheckPiece(bKe, playBoard);
+            Calcs.WK = Calcs.CheckPiece(wKe, playBoard);
         }
         //
         // Colouring
@@ -143,6 +145,8 @@ namespace Chess
         internal bool isMoving = false;
         internal bool isCheck = false;
         internal List<ChessPiece> checkingPieces = new List<ChessPiece>();
+        
+        
         //
         // Boxes to indicate available moves
         //
@@ -268,19 +272,19 @@ namespace Chess
             //
             // Get check
             //
-            List<ChessPiece>[] isCheckT = Calcs.CheckCheck(playBoard);
+            List<ChessPiece>[] isCheckT = Calcs.CheckCheck(playBoard, Calcs.CheckPiece(wKe, playBoard), Calcs.CheckPiece(bKe, playBoard));
             bool isCheckB = isCheckT.Any(i => i.Count != 0);
             if (isCheckB)
-            foreach (ChessPiece pc in isCheckT.First(i => i.Count != 0))
-            {
-                Console.WriteLine(pc.box.Name);
-            }
             isCheck = isCheckB;
             if (isCheckT.All(i => i.Count != 0)) throw new Exception("Critical error: Both kings in check");
             //
             // Get CM
             //
             bool[] isCM = Calcs.CMCheck(playBoard, isCheckT);
+            if (isCM.Any(i => i == true))
+            {
+                Console.WriteLine("WIN");
+            }
             //
             // Update moves
             //
