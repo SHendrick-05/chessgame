@@ -30,13 +30,16 @@ namespace Chess
         // Piece handling
         //
         static internal List<ChessPiece> pieces = new List<ChessPiece>(); // Global piece list [used by all]
+        static internal List<ChessPiece> bP = new List<ChessPiece>();
+        static internal List<ChessPiece> wP = new List<ChessPiece>();
         static internal ChessPiece WK;
         static internal ChessPiece BK;
 
         static internal ChessPiece CheckPiece(PictureBox checkbox, TableLayoutPanel board)
         {
-            if (checkbox == null)
+            if (checkbox == null || checkbox.BackColor == Color.DarkGray)
                 return null;
+            
             foreach (ChessPiece piece in pieces)
             {
                 if (piece.box == checkbox)
@@ -57,9 +60,10 @@ namespace Chess
                 throw new Exception("One or more kings are missing");
             Point WP = new Point(WK.pos.Column, WK.pos.Row);
             Point BP = new Point(BK.pos.Column, BK.pos.Row);
-            foreach (ChessPiece pc in pieces)
+            for (int i = 0; i < pieces.Count; i++)
+           // foreach (ChessPiece pc in pieces.Where(i => i.box.BackColor != Color.DarkGray))
             {
-                if (pc.box.Name.Contains("DEL")) continue;
+                ChessPiece pc = pieces[i];
                 List<Point> moves = CalcMovesG(pc, board);
                 if (moves.Contains(WP) && !pc.isWhite)
                     WC.Add(pc);
@@ -74,19 +78,20 @@ namespace Chess
         //
         static internal bool[] CMCheck(TableLayoutPanel board, List<ChessPiece>[] Checks) // [White,black], returns if checkmate.
         {
-            List<Point> WM = new List<Point>(), BM = new List<Point>();
-            foreach (ChessPiece pc in pieces)
+            var WM = new List<Point>();
+            var BM = new List<Point>();
+
+            for (int i = 0; i < pieces.Count; i++)
             {
+                ChessPiece pc = pieces[i];
+                if(pc.box.BackColor == Color.DarkGray) 
+                    continue;
                 if (pc.isWhite)
-                    foreach (Point pt in CalcMovesG(pc, board, Checks[0]))
-                    {
-                        WM.Add(pt);
-                    }
+                {
+                    WM = WM.Union(CalcMovesG(pc, board, Checks[0])).ToList();
+                }
                 else
-                    foreach (Point pt in CalcMovesG(pc, board, Checks[1]))
-                    {
-                        BM.Add(pt);
-                    }
+                    BM = BM.Union(CalcMovesG(pc, board, Checks[1])).ToList();
             }
             return new bool[2] { WM.Count == 0, BM.Count == 0 };
 
@@ -149,7 +154,6 @@ namespace Chess
             {
                 if (distance == counter++) break;
                 Point pt = new Point(xy[0], xy[1]);
-                result.Add(pt);
                 PictureBox box = (PictureBox)board.GetControlFromPosition(xy[0], xy[1]);
                 if (box == null)
                     result.Add(pt);
@@ -168,7 +172,7 @@ namespace Chess
         //
         // Intermediate function: Calculates lines
         //
-        static private List<Point> CalcLines(ChessPiece piece, TableLayoutPanel board, int distance = 10)
+        static private List<Point> CalcLines(ChessPiece piece, TableLayoutPanel board, int distance = 8)
         {
             List<Point> resF = LoopCalc(piece, board, new List<Dir>() { Dir.F }, distance);
             List<Point> resR = LoopCalc(piece, board, new List<Dir>() { Dir.R }, distance);
@@ -183,7 +187,7 @@ namespace Chess
         //
         // Intermediate function: Calculate diag
         //
-        static private List<Point> CalcDiag(ChessPiece piece, TableLayoutPanel board, int distance = 10)
+        static private List<Point> CalcDiag(ChessPiece piece, TableLayoutPanel board, int distance = 8)
         {
             List<Point> resFR = LoopCalc(piece, board, new List<Dir>() { Dir.F, Dir.R }, distance);
             List<Point> resBR = LoopCalc(piece, board, new List<Dir>() { Dir.B, Dir.R }, distance);
@@ -263,7 +267,7 @@ namespace Chess
             TableLayoutPanelCellPosition pos = board.GetPositionFromControl(piece.box);
             int y = pos.Row;
             int x = pos.Column;
-            List<Point> result = new List<Point>()
+            List<Point> tempmoves = new List<Point>()
                 { // Calculate each point individually, TODO: optimise
                     new Point(x+1,y+2),
                     new Point(x-1,y+2),
@@ -274,15 +278,11 @@ namespace Chess
                     new Point(x+2,y-1),
                     new Point(x-2,y-1)
                 };
-            List<Point> discard = new List<Point>();
-            foreach (Point pt in result)
+            List<Point> result = new List<Point>();
+            foreach (Point pt in tempmoves)
             {
-                if (!CheckVals(pt.X, pt.Y))
-                    discard.Add(pt);
-            }
-            foreach (Point pt in discard)
-            {
-                result.Remove(pt);
+                if (CheckVals(pt.X, pt.Y))
+                    result.Add(pt);
             }
             return result;
         }
@@ -319,6 +319,7 @@ namespace Chess
         static public List<Point> CalcMovesG(ChessPiece piece, TableLayoutPanel board)
         {
             List<Point> moves;
+            List<Point> result = new List<Point>();
             switch (piece.pieceRank)
             { // Access rank-specific methods
                 case Rank.PAWN:
@@ -343,6 +344,17 @@ namespace Chess
                     moves = new List<Point>();
                     break;
             }
+            foreach (Point pt in moves)
+            {
+                PictureBox box = (PictureBox)board.GetControlFromPosition(pt.X, pt.Y);
+                if (box != null)
+                {
+                    ChessPiece pc = CheckPiece(box, board);
+                    if (pc.isWhite != piece.isWhite)
+                        result.Add(pt);
+                }
+                else result.Add(pt);
+            }
             return moves;
 
         }
@@ -360,31 +372,25 @@ namespace Chess
         
         static public List<Point> CalcMovesG(ChessPiece piece, TableLayoutPanel board, List<ChessPiece> checkingPieces)
         {
-            List<Point> movesTemp = CalcMovesG(piece, board);
-            if (checkingPieces.Count == 0) return movesTemp;
-            List<Point> moves2 = new List<Point>();
-            bool iW = piece.isWhite;
+            Console.WriteLine(piece.pieceRank + piece.box.Name);
+            List<Point> tempMoves = CalcMovesG(piece, board);
+            if (checkingPieces.Count == 0) return tempMoves; // Make sure they're actually in check
+            List<Point> result = new List<Point>();
             List<Point> otherMoves = new List<Point>();
-            foreach (ChessPiece pc in pieces)
+            foreach(ChessPiece pc in piece.isWhite ? bP : wP)
             {
-                if (pc.isWhite != iW)
-                    otherMoves.Concat(CalcMovesG(piece, board));
+                otherMoves = otherMoves.Union(CalcMovesG(pc,board)).ToList();
+            } // Get all possible moves for other team
+
+            foreach (Point pt in tempMoves)
+            {
+                if (piece.pieceRank == Rank.KING) // Check if king can dodge
+                    if (!otherMoves.Contains(pt))
+                        result.Add(pt);
             }
 
-            foreach (Point pt in movesTemp)
-            {
-                if (piece.pieceRank == Rank.KING && !otherMoves.Contains(pt)) // King dodge
-                    moves2.Add(pt);
-                if (checkingPieces.Count == 1 && checkingPieces[0].posPT == pt) // Take the piece
-                    moves2.Add(pt);
-                if (board.GetControlFromPosition(pt.X, pt.Y) == null)
-                {
-                    Tbox(board, pt);
-                    if (CheckCheck(board).All(i => i.Count == 0))
-                        moves2.Add(pt);
-                }// Block the move
-            }
-            return moves2;
+            return result;
+            //throw new NotImplementedException();
         }
 
     }
@@ -393,6 +399,35 @@ namespace Chess
     // Piece class
     //
 
+
+
+
+/*List<Point> movesTemp = CalcMovesG(piece, board);
+if (checkingPieces.Count == 0) return movesTemp;
+List<Point> moves2 = new List<Point>();
+bool iW = piece.isWhite;
+List<Point> otherMoves = new List<Point>();
+foreach (ChessPiece pc in pieces)
+{
+    if (pc.isWhite != iW)
+        otherMoves = otherMoves.Union(CalcMovesG(piece, board)).ToList();
+}
+Console.WriteLine(piece.pieceRank.ToString());
+foreach (Point pt in movesTemp)
+{
+                
+    if (piece.pieceRank == Rank.KING
+        || !otherMoves.Contains(pt))
+        moves2.Add(pt);
+}
+foreach (Control ct in board.Controls)
+{
+    if (ct.BackColor == Color.DarkGray)
+        board.Controls.Remove(ct);
+}
+foreach (Point pt in moves2)
+    Console.WriteLine("{0}, {1}", pt.X, pt.Y);
+return moves2;*/
 
 
 /*

@@ -90,6 +90,7 @@
             this.wPb = new System.Windows.Forms.PictureBox();
             this.winScreen = new System.Windows.Forms.Panel();
             this.winText = new System.Windows.Forms.Label();
+            this.replay = new System.Windows.Forms.Button();
             this.side.SuspendLayout();
             this.top.SuspendLayout();
             this.rank.SuspendLayout();
@@ -132,6 +133,7 @@
             // 
             // side
             // 
+            this.side.Controls.Add(this.replay);
             this.side.Controls.Add(this.moves);
             this.side.Controls.Add(this.turnbox);
             this.side.Controls.Add(this.turntext);
@@ -892,6 +894,7 @@
             this.winScreen.Name = "winScreen";
             this.winScreen.Size = new System.Drawing.Size(552, 91);
             this.winScreen.TabIndex = 5;
+            this.winScreen.Visible = false;
             // 
             // winText
             // 
@@ -903,6 +906,22 @@
             this.winText.Size = new System.Drawing.Size(249, 39);
             this.winText.TabIndex = 0;
             this.winText.Text = "TEAM_ WINS!";
+            // 
+            // replay
+            // 
+            this.replay.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(44)))), ((int)(((byte)(51)))));
+            this.replay.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.replay.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.replay.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.replay.ForeColor = System.Drawing.SystemColors.Control;
+            this.replay.Location = new System.Drawing.Point(0, 524);
+            this.replay.Name = "replay";
+            this.replay.Size = new System.Drawing.Size(211, 73);
+            this.replay.TabIndex = 5;
+            this.replay.Text = "Replay";
+            this.replay.UseVisualStyleBackColor = false;
+            this.replay.Visible = false;
+            this.replay.Click += new System.EventHandler(this.replay_Click);
             // 
             // Board
             // 
@@ -1028,5 +1047,6 @@
         private System.Windows.Forms.TextBox moves;
         private System.Windows.Forms.Panel winScreen;
         private System.Windows.Forms.Label winText;
+        private System.Windows.Forms.Button replay;
     }
 }

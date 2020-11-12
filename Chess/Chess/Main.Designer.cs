@@ -99,8 +99,8 @@
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(680, 228);
             this.textBox1.TabIndex = 2;
-            this.textBox1.Text = "-Pieces are moving now\r\n\r\n-TODO:\r\nChecks and Checkmates\r\nStalemate\r\nEdge cases\r\nC" +
-    "hoice in pawn promotion\r\n\r\nBy Sean Hendrick 10P1";
+            this.textBox1.Text = "-Checks are more robust\r\n-Checkmates starting to work\r\n\r\n-TODO:\r\nStalemate\r\nEdge " +
+    "cases\r\nChoice in pawn promotion\r\n\r\nBy Sean Hendrick 10P1";
             // 
             // source
             // 

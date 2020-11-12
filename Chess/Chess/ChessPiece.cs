@@ -1,6 +1,7 @@
 ﻿using System.Windows.Forms;
 using System.Drawing;
 using System.Collections.Generic;
+using System;
 
 namespace Chess
 {
@@ -50,8 +51,12 @@ namespace Chess
                         return Rank.BISH;
                     case 'Q':
                         return Rank.QUEE;
-                    default:
+                    case 'K':
                         return Rank.KING;
+                    case 'E':
+                        return Rank.PAWN;
+                    default:
+                        throw new Exception("ISSUE: INVALID RANKING");
                 }
             }
 
