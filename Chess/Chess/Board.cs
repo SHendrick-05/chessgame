@@ -48,11 +48,16 @@ namespace Chess
                     {
                         ChessPiece piece = new ChessPiece(box, playBoard);
                         Calcs.pieces.Add(piece);
+                        if (piece.isWhite)
+                            Calcs.wP.Add(piece);
+                        else
+                            Calcs.bP.Add(piece);
                     }
+                    
                 }
+                Calcs.BK = Calcs.CheckPiece(bKe, playBoard);
+                Calcs.WK = Calcs.CheckPiece(wKe, playBoard);
             }
-            Calcs.BK = Calcs.CheckPiece(bKe, playBoard);
-            Calcs.WK = Calcs.CheckPiece(wKe, playBoard);
         }
         //
         // Colouring
@@ -144,6 +149,7 @@ namespace Chess
         internal bool whiteTurn = true;
         internal bool isMoving = false;
         internal bool isCheck = false;
+        internal bool isOver = false;
         internal List<ChessPiece> checkingPieces = new List<ChessPiece>();
         
         
@@ -272,7 +278,7 @@ namespace Chess
             //
             // Get check
             //
-            List<ChessPiece>[] isCheckT = Calcs.CheckCheck(playBoard, Calcs.CheckPiece(wKe, playBoard), Calcs.CheckPiece(bKe, playBoard));
+            List<ChessPiece>[] isCheckT = Calcs.CheckCheck(playBoard);
             bool isCheckB = isCheckT.Any(i => i.Count != 0);
             if (isCheckB)
             isCheck = isCheckB;
@@ -283,7 +289,9 @@ namespace Chess
             bool[] isCM = Calcs.CMCheck(playBoard, isCheckT);
             if (isCM.Any(i => i == true))
             {
-                Console.WriteLine("WIN");
+                winText.Text = isCM[0] ? "BLACK WINS!" : "WHITE WINS!";
+                winScreen.Visible = true;
+                isOver = true;
             }
             //
             // Update moves
@@ -302,6 +310,7 @@ namespace Chess
             //
             // Discard moves/wrong clicks
             //
+            if (isOver) return;
             PictureBox box = (PictureBox)sender;
             ChessPiece selpiece = Calcs.CheckPiece(box, playBoard);
             if (isMoving)
@@ -316,6 +325,7 @@ namespace Chess
             // Variables
             selectedPiece = selpiece;
             List<Point> moves = Calcs.CalcMovesG(selpiece, playBoard, checkingPieces);
+            Console.WriteLine(moves.Count);
             List<Point> discard = new List<Point>();
             foreach (Point pt in moves)
             {
@@ -328,7 +338,8 @@ namespace Chess
                 //
                 if ( col < 0 || col > 7 || row < 0 || row > 7 )
                     discard.Add(pt);
-                else if ( cont != null && contp.isWhite == selpiece.isWhite )
+                else if ( cont != null
+                    && cont.BackColor != Color.DarkGray && contp.isWhite == selpiece.isWhite )
                     discard.Add(pt);
                 else
                     AddTempBox(row, col);
@@ -338,6 +349,13 @@ namespace Chess
                 isMoving = false;
                 return;
             }
+        }
+
+        private void replay_Click(object sender, EventArgs e)
+        {
+            Board brd = new Board();
+            brd.ShowDialog();
+            Close();
         }
            
         //
