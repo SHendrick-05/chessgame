@@ -39,6 +39,7 @@ namespace Chess
         public Board()
         {
             InitializeComponent();
+            Calcs.board = playBoard; // Set calc variables
             for (int i = 0; i < 8; i++)
             {
                 for (int j = 0; j < 8; j++)
@@ -47,17 +48,16 @@ namespace Chess
                     if (box != null)
                     {
                         ChessPiece piece = new ChessPiece(box, playBoard);
-                        Calcs.pieces.Add(piece);
+                        Calcs.pieces.Add(piece); // Set the "pieces" var in Calcs
                         if (piece.isWhite)
                             Calcs.wP.Add(piece);
                         else
                             Calcs.bP.Add(piece);
                     }
-                    
                 }
-                Calcs.BK = Calcs.CheckPiece(bKe, playBoard);
-                Calcs.WK = Calcs.CheckPiece(wKe, playBoard);
             }
+            Calcs.BK = Calcs.CheckPiece(bKe);
+            Calcs.WK = Calcs.CheckPiece(wKe);
         }
         //
         // Colouring
@@ -68,16 +68,6 @@ namespace Chess
                 e.Graphics.FillRectangle(Brushes.DarkOliveGreen, e.CellBounds);
             else
                 e.Graphics.FillRectangle(Brushes.PapayaWhip, e.CellBounds); 
-        }
-
-        private void rank_CellPaint(object sender, TableLayoutCellPaintEventArgs e)
-        {
-            e.Graphics.FillRectangle(Brushes.White, e.CellBounds);
-        }
-
-        private void file_CellPaint(object sender, TableLayoutCellPaintEventArgs e)
-        {
-            e.Graphics.FillRectangle(Brushes.White, e.CellBounds);
         }
         //
         // Basic button controls
@@ -97,8 +87,8 @@ namespace Chess
             {
                 PictureBox boxC = (PictureBox)playBoard.GetControlFromPosition(row, i);
                 PictureBox boxR = (PictureBox)playBoard.GetControlFromPosition(i, col);
-                ChessPiece pcC = Calcs.CheckPiece(boxC, playBoard);
-                ChessPiece pcR = Calcs.CheckPiece(boxR,playBoard);
+                ChessPiece pcC = Calcs.CheckPiece(boxC);
+                ChessPiece pcR = Calcs.CheckPiece(boxR);
                 if (boxC != null && pcC.pieceRank == piece.pieceRank
                     && pcC.isWhite == piece.isWhite
                     && pcC != piece)
@@ -114,30 +104,52 @@ namespace Chess
             }
             return new bool[2] { colB, rowB };
         }
+        // 
+        // Stalemate chec
+        //
+        private bool isSM(bool[] isCM)
+        {
+            return ((isCM[0] && whiteTurn)
+                 || (isCM[1] && !whiteTurn));
+        }
 
         //
-        // Get move
+        // Turn a move into notation
         //
-
-
         private string[] GetMoveText(bool attack, TableLayoutPanelCellPosition pos, ChessPiece piece, bool Check, bool[] CM)
         {
+            // Vars for checking
             string rS = "abcdefgh", fS = "87654321";
             Rank r = piece.pieceRank;
-            bool P = r != Rank.PAWN;
-            string pieceRank = P ? r.ToString()[0].ToString() : "";
+            bool P = r != Rank.PAWN; 
+
+            // Rank/capture
+            string pieceRank = P ? r.ToString()[0].ToString() : ""; 
             string attC = attack ? "x" : "";
+
+            // Positioning
             bool[] clear = isClear(piece);
             string Brank = !clear[0] && (P || attack) ? rS[pos.Column].ToString() : "";
             string Bfile = !clear[1] && P ? fS[pos.Row].ToString() : "";
+
+            // Moveto positioning
             char rank = rS[piece.pos.Column];
-            char file = fS[piece.pos.Row];
-            string check = Check && !CM.Any(i => i == true) ? "+" : "";
-            string sCM = CM.Any(i => i == true) ? "#" : "";
+            char file = fS[piece.pos.Row]; 
+
+            // Checks/Checkmates/Stalemates
+            bool isCM = CM[0] || CM[1];
+            string check = !isCM && Check ? "+" : "";
+            string sCM = isCM && CM[2] ? "#" : "";
+            string sSM = isCM && !CM[2] ? "$" : "";
+
+            string W = CM[0] ? "0" : "1";
+            string B = CM[1] ? "0" : "1";
+
             string winLine = "";
-            if (CM.Any(i => i == true)) winLine = CM[0] ? "0-1" : "1-0";
+            if (isCM) winLine = CM[2] ? W + "-" + B : "½-½";
+
             List<string> lines = new List<string>() { pieceRank+Brank+Bfile+attC+rank+file+check+sCM, winLine };
-            return lines.Where(i => i != "").ToArray();
+            return lines.Where(i => i != "").ToArray(); // concaternate all of these chars
 
         }
         //
@@ -145,12 +157,13 @@ namespace Chess
         //
 
         // Vars
+        internal List<ChessPiece> checkingPieces = new List<ChessPiece>();
         internal ChessPiece selectedPiece;
         internal bool whiteTurn = true;
         internal bool isMoving = false;
         internal bool isCheck = false;
         internal bool isOver = false;
-        internal List<ChessPiece> checkingPieces = new List<ChessPiece>();
+
         
         
         //
@@ -259,7 +272,7 @@ namespace Chess
             {
                 if (Math.Abs(selpos.Row - pos.Row) == 2)
                     selectedPiece.PassElig = true;
-                selectedPiece.CheckPromote(playBoard);
+                selectedPiece.CheckPromote();
                 selectedPiece.canDouble = false;
             }
             //
@@ -278,25 +291,50 @@ namespace Chess
             //
             // Get check
             //
-            List<ChessPiece>[] isCheckT = Calcs.CheckCheck(playBoard);
+            List<ChessPiece>[] isCheckT = Calcs.CheckCheck();
             bool isCheckB = isCheckT.Any(i => i.Count != 0);
-            if (isCheckB)
-            isCheck = isCheckB;
-            if (isCheckT.All(i => i.Count != 0)) throw new Exception("Critical error: Both kings in check");
+            if (isCheckB) isCheck = isCheckB;
+            if (isCheckT.All(i => i.Count != 0)) throw new Exception("Critical error: Both kings in check"); else
+            if (isCheckT[0].Count != 0) checkingPieces = isCheckT[0]; else
+            if (isCheckT[1].Count != 0) checkingPieces = isCheckT[1];
             //
             // Get CM
             //
-            bool[] isCM = Calcs.CMCheck(playBoard, isCheckT);
-            if (isCM.Any(i => i == true))
+            bool[] isCM = Calcs.CMCheck(isCheckT);
+            if (isCM[0] || isCM[1])
             {
-                winText.Text = isCM[0] ? "BLACK WINS!" : "WHITE WINS!";
-                winScreen.Visible = true;
-                isOver = true;
+                if (isCM[3]) // Checkmate
+                {
+                    isOver = true;
+                    winText.Text = isCM[0] ? "BLACK WINS!" : "WHITE WINS!";
+                    winScreen.Visible = true;
+                    replay.Visible = true;
+                    turnbox.Visible = false;
+                    turntext.Visible = false;
+                }
+                else // (Possible) Stalemate
+                {
+
+                    {
+                        isOver = true;
+                        winText.Text = "STALEMATE!";
+                        winScreen.Visible = true;
+                        replay.Visible = true;
+                        turnbox.Visible = false;
+                        turntext.Visible = false;
+                    }
+                }
             }
             //
             // Update moves
             //
-            moves.Lines = moves.Lines.Concat(GetMoveText(attack,selpos,selectedPiece,isCheckB,isCM)).ToArray();
+            string[] lines = GetMoveText(attack, selpos, selectedPiece, isCheckB, isCM);
+            string last = moves.Lines.Last();
+            if (!last.Contains(' '))
+                last += (' ' + lines[0]);
+            else
+                moves.Lines = moves.Lines.Concat(lines).ToArray();
+            
             //
             // Clear selected piece
             //
@@ -312,7 +350,7 @@ namespace Chess
             //
             if (isOver) return;
             PictureBox box = (PictureBox)sender;
-            ChessPiece selpiece = Calcs.CheckPiece(box, playBoard);
+            ChessPiece selpiece = Calcs.CheckPiece(box);
             if (isMoving)
             {
                 AttackMove(sender, e);
@@ -324,7 +362,7 @@ namespace Chess
             // Get moves + Calculate
             // Variables
             selectedPiece = selpiece;
-            List<Point> moves = Calcs.CalcMovesG(selpiece, playBoard, checkingPieces);
+            List<Point> moves = Calcs.CalcMovesG(selpiece, checkingPieces);
             Console.WriteLine(moves.Count);
             List<Point> discard = new List<Point>();
             foreach (Point pt in moves)
@@ -332,7 +370,7 @@ namespace Chess
                 int col = pt.X;
                 int row = pt.Y;
                 PictureBox cont = (PictureBox)playBoard.GetControlFromPosition(pt.X, pt.Y);
-                ChessPiece contp = Calcs.CheckPiece(cont, playBoard);
+                ChessPiece contp = Calcs.CheckPiece(cont);
                 //
                 // Discard unusable moves
                 //
@@ -354,7 +392,7 @@ namespace Chess
         private void replay_Click(object sender, EventArgs e)
         {
             Board brd = new Board();
-            brd.ShowDialog();
+            brd.Show();
             Close();
         }
            

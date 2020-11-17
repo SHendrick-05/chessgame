@@ -62,13 +62,6 @@ namespace Chess
 
         }
         //
-        // General funcs
-        //
-        internal List<Point> CalcMoves(TableLayoutPanel board)
-        {
-            return Calcs.CalcMovesG(this, board);
-        }
-        //
         // Pawn-specific functions
         //
         private void PromotePawn()
@@ -76,7 +69,7 @@ namespace Chess
             box.Name = string.Format("{0}Q{1}P", box.Name[0], box.Name[2]);
             box.BackgroundImage = isWhite ? Properties.Resources.wqueen : Properties.Resources.bqueen;
         }
-        internal void CheckPromote(TableLayoutPanel board)
+        internal void CheckPromote()
         {
             if (pieceRank != 0)
                 return;
