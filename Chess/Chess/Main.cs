@@ -43,7 +43,8 @@ namespace Chess
         private void Play(object sender, EventArgs e)
         {
             Board brd = new Board();
-            brd.ShowDialog();
+            brd.Show();
+            Hide();
         }
 
         private void CloseApp(object sender, EventArgs e)
