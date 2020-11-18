@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing;
 
+
 namespace Chess
 {
     internal enum Rank // Rank enum for pieces
@@ -164,8 +165,7 @@ namespace Chess
                 else
                 {
                     if (box.Name == piece.box.Name) continue;
-                    if (CheckPiece(box).isWhite != piece.isWhite // Allow for capture
-                        && box.BackColor != Color.DarkGray) // Disallow tempboxes
+                    if (box.BackColor != Color.DarkGray &&CheckPiece(box).isWhite != piece.isWhite ) // Allow for capture, Disallow tempboxes
                         result.Add(pt);
                     break;
                 }
@@ -226,18 +226,17 @@ namespace Chess
             //
             // Straight move 
             //
-            if ((PictureBox)board.GetControlFromPosition(col, row + offset) == null)
-                result.Add(new Point(col, row + offset));
-            if (piece.canDouble && (PictureBox)board.GetControlFromPosition(col, row + (2 * offset)) == null)
-                result.Add(new Point(col, row + (2 * offset)));
+            result = LoopCalc(piece,
+                piece.isWhite ? new List<Dir>() { Dir.F } : new List<Dir>() { Dir.B },
+                piece.canDouble ? 3 : 2); // Calculate while allowing for double moves
 
+            // Loop for other attacks
             for (int x = 1; x >= -1; x -= 2)
             {
                 if (!CheckVals(x + col))
                     continue;
-                //
+
                 // Diag attacks
-                //
                 PictureBox pbox = (PictureBox)board.GetControlFromPosition(col + x, row + offset);
                 if (pbox != null)
                 {
@@ -245,9 +244,8 @@ namespace Chess
                     if (ppiece.isWhite != piece.isWhite)
                         result.Add(new Point(col + x, row + offset));
                 }
-                //
+
                 // En Passant
-                //
                 pbox = (PictureBox)board.GetControlFromPosition(col + x, row);
                 if (pbox != null)
                 {
@@ -331,6 +329,7 @@ namespace Chess
         {
             List<Point> moves;
             List<Point> result = new List<Point>();
+            List<Point> final = new List<Point>();
             switch (piece.pieceRank)
             { // Access rank-specific methods
                 case Rank.PAWN:
@@ -366,13 +365,25 @@ namespace Chess
                 }
                 else result.Add(pt);
             }
+
+            // TODO: Stop them wilfully checking themselves.
+            foreach (Point pt in moves)
+            {
+                PictureBox box = piece.box;
+                int scol = piece.pos.Column, srow = piece.pos.Row;
+                int mcol = pt.X, mrow = pt.Y;
+                board.Controls.Remove(box);
+                PictureBox temp = Tbox(pt);
+                if (CheckCheck[piece.isWhite ? 0 : 1])
+            }
+
             return moves;
 
         }
         //
         // Add temporary box for move calculation
         //
-        static private void Tbox(Point pt) 
+        static private PictureBox Tbox(Point pt) 
         {
             PictureBox box = new PictureBox();
             box.Name = string.Format("TEMP_{0}{1}", pt.X.ToString(), pt.Y.ToString());
@@ -380,20 +391,13 @@ namespace Chess
             board.Controls.Add(box, pt.X, pt.Y);
             box.Dock = DockStyle.Fill;
             box.Margin = new Padding(1);
-        }
-        // Remove said
-        static private void removeTboxes()
-        {
-            foreach (PictureBox pb in board.Controls)
-            {
-            }
+            return box;
         }
         //
         // Overload for move calculation, for moving in check
         //
         static public List<Point> CalcMovesG(ChessPiece piece, List<ChessPiece> checkingPieces)
         {
-            Console.WriteLine(piece.pieceRank + piece.box.Name);
             List<Point> tempMoves = CalcMovesG(piece);
             if (checkingPieces.Count == 0) return tempMoves; // Make sure they're actually in check
             List<Point> result = new List<Point>();
@@ -412,6 +416,14 @@ namespace Chess
                 {
                     if (checkingPieces[0].posPT == pt) // Check if a piece can take
                         result.Add(pt);
+                    else
+                    {
+                        PictureBox box = Tbox(pt);
+                        if (!CalcMovesG(checkingPieces[0]) // Check if a piece can block
+                            .Contains(piece.isWhite ? WK.posPT : BK.posPT))
+                            result.Add(pt);
+                        board.Controls.Remove(box);
+                    }
                 }
             }
 

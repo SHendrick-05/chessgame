@@ -37,7 +37,7 @@
             this.closeBoard = new System.Windows.Forms.Button();
             this.top = new System.Windows.Forms.Panel();
             this.title = new System.Windows.Forms.Label();
-            this.rank = new System.Windows.Forms.Panel();
+            this.file = new System.Windows.Forms.Panel();
             this.h = new System.Windows.Forms.Label();
             this.g = new System.Windows.Forms.Label();
             this.f = new System.Windows.Forms.Label();
@@ -47,7 +47,7 @@
             this.b = new System.Windows.Forms.Label();
             this.a = new System.Windows.Forms.Label();
             this.corner = new System.Windows.Forms.Panel();
-            this.file = new System.Windows.Forms.Panel();
+            this.rank = new System.Windows.Forms.Panel();
             this.eight = new System.Windows.Forms.Label();
             this.seven = new System.Windows.Forms.Label();
             this.six = new System.Windows.Forms.Label();
@@ -93,8 +93,8 @@
             this.winText = new System.Windows.Forms.Label();
             this.side.SuspendLayout();
             this.top.SuspendLayout();
-            this.rank.SuspendLayout();
             this.file.SuspendLayout();
+            this.rank.SuspendLayout();
             this.playBoard.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.wNg)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.wBf)).BeginInit();
@@ -236,24 +236,24 @@
             this.title.Text = "Chess";
             this.title.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Drag);
             // 
-            // rank
+            // file
             // 
-            this.rank.BackColor = System.Drawing.Color.Black;
-            this.rank.Controls.Add(this.h);
-            this.rank.Controls.Add(this.g);
-            this.rank.Controls.Add(this.f);
-            this.rank.Controls.Add(this.e);
-            this.rank.Controls.Add(this.d);
-            this.rank.Controls.Add(this.c);
-            this.rank.Controls.Add(this.b);
-            this.rank.Controls.Add(this.a);
-            this.rank.Controls.Add(this.corner);
-            this.rank.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.rank.ForeColor = System.Drawing.Color.White;
-            this.rank.Location = new System.Drawing.Point(211, 552);
-            this.rank.Name = "rank";
-            this.rank.Size = new System.Drawing.Size(597, 45);
-            this.rank.TabIndex = 2;
+            this.file.BackColor = System.Drawing.Color.Black;
+            this.file.Controls.Add(this.h);
+            this.file.Controls.Add(this.g);
+            this.file.Controls.Add(this.f);
+            this.file.Controls.Add(this.e);
+            this.file.Controls.Add(this.d);
+            this.file.Controls.Add(this.c);
+            this.file.Controls.Add(this.b);
+            this.file.Controls.Add(this.a);
+            this.file.Controls.Add(this.corner);
+            this.file.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.file.ForeColor = System.Drawing.Color.White;
+            this.file.Location = new System.Drawing.Point(211, 552);
+            this.file.Name = "file";
+            this.file.Size = new System.Drawing.Size(597, 45);
+            this.file.TabIndex = 2;
             // 
             // h
             // 
@@ -352,23 +352,23 @@
             this.corner.Size = new System.Drawing.Size(45, 45);
             this.corner.TabIndex = 0;
             // 
-            // file
+            // rank
             // 
-            this.file.BackColor = System.Drawing.Color.Black;
-            this.file.Controls.Add(this.eight);
-            this.file.Controls.Add(this.seven);
-            this.file.Controls.Add(this.six);
-            this.file.Controls.Add(this.four);
-            this.file.Controls.Add(this.three);
-            this.file.Controls.Add(this.five);
-            this.file.Controls.Add(this.two);
-            this.file.Controls.Add(this.one);
-            this.file.Dock = System.Windows.Forms.DockStyle.Left;
-            this.file.ForeColor = System.Drawing.Color.White;
-            this.file.Location = new System.Drawing.Point(211, 0);
-            this.file.Name = "file";
-            this.file.Size = new System.Drawing.Size(45, 552);
-            this.file.TabIndex = 3;
+            this.rank.BackColor = System.Drawing.Color.Black;
+            this.rank.Controls.Add(this.eight);
+            this.rank.Controls.Add(this.seven);
+            this.rank.Controls.Add(this.six);
+            this.rank.Controls.Add(this.four);
+            this.rank.Controls.Add(this.three);
+            this.rank.Controls.Add(this.five);
+            this.rank.Controls.Add(this.two);
+            this.rank.Controls.Add(this.one);
+            this.rank.Dock = System.Windows.Forms.DockStyle.Left;
+            this.rank.ForeColor = System.Drawing.Color.White;
+            this.rank.Location = new System.Drawing.Point(211, 0);
+            this.rank.Name = "rank";
+            this.rank.Size = new System.Drawing.Size(45, 552);
+            this.rank.TabIndex = 3;
             // 
             // eight
             // 
@@ -931,8 +931,8 @@
             this.ClientSize = new System.Drawing.Size(808, 597);
             this.Controls.Add(this.winScreen);
             this.Controls.Add(this.playBoard);
-            this.Controls.Add(this.file);
             this.Controls.Add(this.rank);
+            this.Controls.Add(this.file);
             this.Controls.Add(this.side);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "Board";
@@ -941,10 +941,10 @@
             this.side.PerformLayout();
             this.top.ResumeLayout(false);
             this.top.PerformLayout();
-            this.rank.ResumeLayout(false);
-            this.rank.PerformLayout();
             this.file.ResumeLayout(false);
             this.file.PerformLayout();
+            this.rank.ResumeLayout(false);
+            this.rank.PerformLayout();
             this.playBoard.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.wNg)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.wBf)).EndInit();
@@ -987,8 +987,8 @@
         #endregion
 
         private System.Windows.Forms.Panel side;
-        private System.Windows.Forms.Panel rank;
         private System.Windows.Forms.Panel file;
+        private System.Windows.Forms.Panel rank;
         private System.Windows.Forms.TableLayoutPanel playBoard;
         private System.Windows.Forms.Panel corner;
         private System.Windows.Forms.Panel top;
