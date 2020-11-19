@@ -74,6 +74,8 @@ namespace Chess
         //
         private void closeboard_Click(object sender, EventArgs e) 
         {
+            Main mn = new Main();
+            mn.Show();
             Close();
         }
         //
@@ -116,7 +118,7 @@ namespace Chess
         //
         // Turn a move into notation
         //
-        private string[] GetMoveText(bool attack, TableLayoutPanelCellPosition pos, ChessPiece piece, bool Check, bool[] CM, bool ep)
+        private string[] GetMoveText(bool attack, TableLayoutPanelCellPosition pos, ChessPiece piece, bool Check, bool NM, bool ep)
         {
             // Vars for checking
             string fS = "abcdefgh", rS = "87654321";
@@ -138,16 +140,16 @@ namespace Chess
             char file = fS[piece.pos.Column]; 
 
             // Checks/Checkmates/Stalemates
-            bool isCM = CM[0] || CM[1];
-            string check = !isCM && Check ? "+" : "";
-            string sCM = isCM && CM[2] ? "#" : "";
-            string sSM = isCM && !CM[2] ? "$" : "";
+            bool CM = Check && NM;
+            string check = !NM && Check ? "+" : "";
+            string sCM = NM && Check ? "#" : "";
+            string sSM = NM && !Check ? "$" : "";
 
-            string W = CM[0] ? "0" : "1";
-            string B = CM[1] ? "0" : "1";
+            string W = whiteTurn && CM ? "0" : "1";
+            string B = !whiteTurn && CM ? "0" : "1";
 
             string winLine = "";
-            if (isCM) winLine = CM[2] ? W + "-" + B : "½-½";
+            if (NM) winLine = Check ? W + "-" + B : "½-½";
 
             List<string> lines = new List<string>() { pieceRank+Bfile+Brank+attC+file+rank+check+sCM+epS, winLine };
             return lines.Where(i => i != "").ToArray(); // concaternate all of these chars
@@ -300,44 +302,32 @@ namespace Chess
             //
             // Get check
             //
-            List<ChessPiece>[] isCheckT = Calcs.CheckCheck();
-            bool isCheckB = isCheckT.Any(i => i.Count != 0);
+            List<ChessPiece> isCheckL = Calcs.CheckCheck(whiteTurn);
+            checkingPieces = isCheckL;
+            bool isCheckB = isCheckL.Count != 0;
             isCheck = isCheckB;
-            if (isCheckT.All(i => i.Count != 0)) throw new Exception("Critical error: Both kings in check"); else
-            if (isCheckT[0].Count != 0) checkingPieces = isCheckT[0]; else
-            if (isCheckT[1].Count != 0) checkingPieces = isCheckT[1];
             //
             // Get CM
             //
-            bool[] isCM = Calcs.CMCheck(isCheckT);
-            if (isCM[0] || isCM[1])
+            bool ifMoves = Calcs.NMCheck(whiteTurn, isCheckL);
+            if (!ifMoves) 
             {
-                if (isCM[3]) // Checkmate
-                {
-                    isOver = true;
-                    winText.Text = isCM[0] ? "BLACK WINS!" : "WHITE WINS!";
-                    winScreen.Visible = true;
-                    replay.Visible = true;
-                    turnbox.Visible = false;
-                    turntext.Visible = false;
-                }
-                else // (Possible) Stalemate
-                {
+                // Game is over
+                isOver = true;
+                winScreen.Visible = true;
+                turnbox.Visible = false;
+                turntext.Visible = false;
+                replay.Visible = true;
 
-                    {
-                        isOver = true;
-                        winText.Text = "STALEMATE!";
-                        winScreen.Visible = true;
-                        replay.Visible = true;
-                        turnbox.Visible = false;
-                        turntext.Visible = false;
-                    }
-                }
+                // Find Checkmate/Stalemate
+                if (isCheckB)
+                    winText.Text = whiteTurn ? "BLACK WINS!" : "WHITE WINS!";
+                else
+                    winText.Text = "STALEMATE!";
             }
-            //
+
             // Update moves
-            //
-            string[] lines = GetMoveText(attack, selpos, selectedPiece, isCheckB, isCM, ep);
+            string[] lines = GetMoveText(attack, selpos, selectedPiece, isCheckB, !ifMoves, ep);
             List<string> boxLines = moves.Lines.ToList();
             if (boxLines.Count != 0)
             {
@@ -492,4 +482,38 @@ namespace Chess
             }
             return result;
         }
-*/
+ * 
+ * 
+ * 
+ * 
+            /*
+            bool ifMoves = Calcs.NMCheck(whiteTurn, isCheckT[
+            if (isCheckB)
+            {
+                bool[] isCM = Calcs.NMCheck(isCheckT);
+                if (isCM[0] || isCM[1])
+                {
+                    if (isCM[2]) // Checkmate
+                    {
+                        isOver = true;
+                        winText.Text = isCM[0] ? "BLACK WINS!" : "WHITE WINS!";
+                        winScreen.Visible = true;
+                        replay.Visible = true;
+                        turnbox.Visible = false;
+                        turntext.Visible = false;
+                    }
+                    else // (Possible) Stalemate
+                    {
+
+                        {
+                            isOver = true;
+                            winText.Text = "STALEMATE!";
+                            winScreen.Visible = true;
+                            replay.Visible = true;
+                            turnbox.Visible = false;
+                            turntext.Visible = false;
+                        }
+                    }
+                }
+            }
+              */

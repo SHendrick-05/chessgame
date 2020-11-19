@@ -49,12 +49,18 @@ namespace Chess
 
         private void CloseApp(object sender, EventArgs e)
         {
-            Close();
+            Environment.Exit(0);
         }
 
         private void source_Click(object sender, EventArgs e)
         {
             System.Diagnostics.Process.Start("https://github.com/SHendrick-Turton/chessgame");
+        }
+
+        private void upLog_Click(object sender, EventArgs e)
+        {
+            upLog log = new upLog();
+            log.ShowDialog();
         }
     }
 }
