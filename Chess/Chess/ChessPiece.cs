@@ -61,6 +61,7 @@ namespace Chess
             }
 
         }
+        internal bool canCollide = true;
         //
         // Pawn-specific functions
         //

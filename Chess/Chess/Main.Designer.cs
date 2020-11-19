@@ -34,6 +34,7 @@
             this.play = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.source = new System.Windows.Forms.Button();
+            this.upLog = new System.Windows.Forms.Button();
             this.top.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -93,14 +94,14 @@
             this.textBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(34)))), ((int)(((byte)(40)))));
             this.textBox1.Font = new System.Drawing.Font("Century Gothic", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textBox1.ForeColor = System.Drawing.SystemColors.Control;
-            this.textBox1.Location = new System.Drawing.Point(12, 84);
+            this.textBox1.Location = new System.Drawing.Point(18, 84);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
-            this.textBox1.Size = new System.Drawing.Size(680, 228);
+            this.textBox1.Size = new System.Drawing.Size(674, 228);
             this.textBox1.TabIndex = 2;
-            this.textBox1.Text = "-Checks are more robust\r\n-Checkmates starting to work\r\n\r\n-TODO:\r\nStalemate\r\nEdge " +
-    "cases\r\nChoice in pawn promotion\r\n\r\nBy Sean Hendrick 10P1";
+            this.textBox1.Text = "-Checkmate and stalemate completed\r\n-Updated notation to allow for these\r\n\r\n-TODO" +
+    ":\r\nEdge cases\r\nChoice in pawn promotion\r\n\r\nBy Sean Hendrick 10P1";
             // 
             // source
             // 
@@ -115,12 +116,26 @@
             this.source.UseVisualStyleBackColor = true;
             this.source.Click += new System.EventHandler(this.source_Click);
             // 
+            // upLog
+            // 
+            this.upLog.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.upLog.Font = new System.Drawing.Font("Century Gothic", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.upLog.ForeColor = System.Drawing.SystemColors.Control;
+            this.upLog.Location = new System.Drawing.Point(265, 318);
+            this.upLog.Name = "upLog";
+            this.upLog.Size = new System.Drawing.Size(178, 42);
+            this.upLog.TabIndex = 4;
+            this.upLog.Text = "Update log";
+            this.upLog.UseVisualStyleBackColor = true;
+            this.upLog.Click += new System.EventHandler(this.upLog_Click);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(44)))), ((int)(((byte)(51)))));
             this.ClientSize = new System.Drawing.Size(704, 405);
+            this.Controls.Add(this.upLog);
             this.Controls.Add(this.source);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.play);
@@ -143,6 +158,7 @@
         private System.Windows.Forms.Label title;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button source;
+        private System.Windows.Forms.Button upLog;
 
     }
 }

@@ -54,49 +54,27 @@ namespace Chess
         //
         // Check check
         //
-        static internal List<ChessPiece>[] CheckCheck() // [White,Black], if team is in check
+        static internal List<ChessPiece> CheckCheck(bool isWhite) // f team is in check
         {
-            List<ChessPiece> WC = new List<ChessPiece>();
-            List<ChessPiece> BC = new List<ChessPiece>();
-            if (WK == null || BK == null)
-                throw new Exception("One or more kings are missing");
-            Point WP = new Point(WK.pos.Column, WK.pos.Row);
-            Point BP = new Point(BK.pos.Column, BK.pos.Row);
-            for (int i = 0; i < pieces.Count; i++)
-           // foreach (ChessPiece pc in pieces.Where(i => i.box.BackColor != Color.DarkGray))
+            List<ChessPiece> result = new List<ChessPiece>();
+            foreach (ChessPiece pc in isWhite ? bP : wP)
             {
-                ChessPiece pc = pieces[i];
-                List<Point> moves = CalcMovesG(pc);
-                if (moves.Contains(WP) && !pc.isWhite)
-                    WC.Add(pc);
-                if (moves.Contains(BP) && pc.isWhite)
-                    BC.Add(pc);
+                if (CalcMovesBB(pc).Contains(isWhite ? WK.posPT : BK.posPT))
+                    result.Add(pc);
             }
-            return new List<ChessPiece>[2] { WC, BC };
-
+            return result;
         }
         //
-        // CM Check (Can check for stalemate, is SM if the third output is "false"
+        // NM Check (Can check for stalemate, is SM if the third output is "false"
         //
-        static internal bool[] CMCheck( List<ChessPiece>[] Checks) // [White,black, notSM], returns if in checkmate.
+        static internal bool NMCheck(bool isWhite, List<ChessPiece> Checks) // Returns if no moves.
         {
-            var WM = new List<Point>();
-            var BM = new List<Point>();
-
-            for (int i = 0; i < pieces.Count; i++)
+            foreach (ChessPiece pc in isWhite ? wP : bP)
             {
-                ChessPiece pc = pieces[i];
-                if(pc.box.BackColor == Color.DarkGray) 
-                    continue;
-                if (pc.isWhite)
-                {
-                    WM = WM.Union(CalcMovesG(pc, Checks[0])).ToList();
-                }
-                else
-                    BM = BM.Union(CalcMovesG(pc, Checks[1])).ToList();
+                if (CalcMovesG(pc).Count != 0)
+                    return true;
             }
-            return new bool[3] { WM.Count == 0, BM.Count == 0, Checks.Any(i => i.Count != 0)};
-
+            return false;
         }
 
 
@@ -164,8 +142,15 @@ namespace Chess
                     result.Add(pt);
                 else
                 {
-                    if (box.Name == piece.box.Name) continue;
-                    if (box.BackColor != Color.DarkGray &&CheckPiece(box).isWhite != piece.isWhite ) // Allow for capture, Disallow tempboxes
+                    if (box == piece.box) continue;
+                    if (box.BackColor == Color.DarkGray) break;
+                    var pieceC = CheckPiece(box);
+                    if (!pieceC.canCollide) // Make sure the box has collision 
+                    {
+                        result.Add(pt);
+                        continue;
+                    }
+                    if (pieceC.isWhite != piece.isWhite) // Allow for capture, Disallow tempboxes
                         result.Add(pt);
                     break;
                 }
@@ -226,9 +211,16 @@ namespace Chess
             //
             // Straight move 
             //
-            result = LoopCalc(piece,
+            List<Point> fwd = LoopCalc(piece,
                 piece.isWhite ? new List<Dir>() { Dir.F } : new List<Dir>() { Dir.B },
                 piece.canDouble ? 3 : 2); // Calculate while allowing for double moves
+
+            foreach (Point pt in fwd)
+            {
+                PictureBox box = (PictureBox)board.GetControlFromPosition(pt.X, pt.Y);
+                if (box == null)
+                    result.Add(pt);
+            }
 
             // Loop for other attacks
             for (int x = 1; x >= -1; x -= 2)
@@ -238,7 +230,7 @@ namespace Chess
 
                 // Diag attacks
                 PictureBox pbox = (PictureBox)board.GetControlFromPosition(col + x, row + offset);
-                if (pbox != null)
+                if (pbox != null && pbox.BackColor != Color.DarkGray)
                 {
                     ChessPiece ppiece = CheckPiece(pbox);
                     if (ppiece.isWhite != piece.isWhite)
@@ -247,7 +239,7 @@ namespace Chess
 
                 // En Passant
                 pbox = (PictureBox)board.GetControlFromPosition(col + x, row);
-                if (pbox != null)
+                if (pbox != null && pbox.BackColor != Color.DarkGray)
                 {
                     ChessPiece ppiece = CheckPiece(pbox);
                     if ((ppiece.isWhite != piece.isWhite) && ppiece.PassElig)
@@ -325,7 +317,7 @@ namespace Chess
         //
         // Calculate moves public class, for other files to use
         //
-        static public List<Point> CalcMovesG(ChessPiece piece)
+        static public List<Point> CalcMovesBB(ChessPiece piece)
         {
             List<Point> moves;
             List<Point> result = new List<Point>();
@@ -359,26 +351,32 @@ namespace Chess
                 PictureBox box = (PictureBox)board.GetControlFromPosition(pt.X, pt.Y);
                 if (box != null)
                 {
+                    if (box.BackColor == Color.DarkGray) continue;
                     ChessPiece pc = CheckPiece(box);
                     if (pc.isWhite != piece.isWhite)
                         result.Add(pt);
                 }
                 else result.Add(pt);
             }
-
-            // TODO: Stop them wilfully checking themselves.
-            foreach (Point pt in moves)
+            return result;
+        }
+        static public List<Point> CalcMovesG(ChessPiece piece)
+        {
+            List<Point> result = CalcMovesBB(piece);
+            List<Point> final = new List<Point>();
+            // Stop them wilfully checking themselves.
+            foreach (Point pt in result)
             {
                 PictureBox box = piece.box;
                 int scol = piece.pos.Column, srow = piece.pos.Row;
-                int mcol = pt.X, mrow = pt.Y;
-                board.Controls.Remove(box);
+                piece.canCollide = false;
                 PictureBox temp = Tbox(pt);
-                if (CheckCheck[piece.isWhite ? 0 : 1])
+                if (CheckCheck(piece.isWhite).Count == 0)
+                    final.Add(pt);
+                piece.canCollide = true;
+                board.Controls.Remove(temp);
             }
-
-            return moves;
-
+            return final;
         }
         //
         // Add temporary box for move calculation
@@ -404,7 +402,7 @@ namespace Chess
             List<Point> otherMoves = new List<Point>();
             foreach(ChessPiece pc in piece.isWhite ? bP : wP)
             {
-                otherMoves = otherMoves.Union(CalcMovesG(pc)).ToList();
+                otherMoves = otherMoves.Union(CalcMovesBB(pc)).ToList();
             } // Get all possible moves for other team
 
             foreach (Point pt in tempMoves)
@@ -419,7 +417,7 @@ namespace Chess
                     else
                     {
                         PictureBox box = Tbox(pt);
-                        if (!CalcMovesG(checkingPieces[0]) // Check if a piece can block
+                        if (!CalcMovesBB(checkingPieces[0]) // Check if a piece can block
                             .Contains(piece.isWhite ? WK.posPT : BK.posPT))
                             result.Add(pt);
                         board.Controls.Remove(box);
@@ -437,6 +435,24 @@ namespace Chess
     // Piece class
     //
 
+
+            /*List<ChessPiece> WC = new List<ChessPiece>();
+            List<ChessPiece> BC = new List<ChessPiece>();
+            if (WK == null || BK == null)
+                throw new Exception("One or more kings are missing");
+            Point WP = new Point(WK.pos.Column, WK.pos.Row);
+            Point BP = new Point(BK.pos.Column, BK.pos.Row);
+            for (int i = 0; i < pieces.Count; i++)
+           // foreach (ChessPiece pc in pieces.Where(i => i.box.BackColor != Color.DarkGray))
+            {
+                ChessPiece pc = pieces[i];
+                List<Point> moves = CalcMovesBB(pc);
+                if (moves.Contains(WP) && !pc.isWhite)
+                    WC.Add(pc);
+                if (moves.Contains(BP) && pc.isWhite)
+                    BC.Add(pc);
+            }
+            return new List<ChessPiece> { WC, BC };*/
 
 
 
