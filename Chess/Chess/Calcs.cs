@@ -56,6 +56,7 @@ namespace Chess
         //
         static internal List<ChessPiece> CheckCheck(bool isWhite) // f team is in check
         {
+            if (!board.Controls.Contains(isWhite ? WK.box : BK.box)) return new List<ChessPiece>() { isWhite ? BK : WK };
             List<ChessPiece> result = new List<ChessPiece>();
             foreach (ChessPiece pc in isWhite ? bP : wP)
             {
@@ -69,9 +70,10 @@ namespace Chess
         //
         static internal bool NMCheck(bool isWhite, List<ChessPiece> Checks) // Returns if no moves.
         {
+            if (!board.Controls.Contains(isWhite ? WK.box : BK.box)) return false;
             foreach (ChessPiece pc in isWhite ? wP : bP)
             {
-                if (CalcMovesG(pc).Count != 0)
+                if (CalcMovesG(pc, Checks).Count != 0)
                     return true;
             }
             return false;
@@ -225,7 +227,7 @@ namespace Chess
             // Loop for other attacks
             for (int x = 1; x >= -1; x -= 2)
             {
-                if (!CheckVals(x + col))
+                if (!CheckVals(x + col) || !CheckVals(row + offset))
                     continue;
 
                 // Diag attacks
@@ -315,7 +317,7 @@ namespace Chess
 
 
         //
-        // Calculate moves public class, for other files to use
+        // Calculate moves public class, for other files to use [basic]
         //
         static public List<Point> CalcMovesBB(ChessPiece piece)
         {
@@ -364,7 +366,7 @@ namespace Chess
         {
             List<Point> result = CalcMovesBB(piece);
             List<Point> final = new List<Point>();
-            // Stop them wilfully checking themselves.
+            // Stop them willfully checking themselves.
             foreach (Point pt in result)
             {
                 PictureBox box = piece.box;
@@ -381,6 +383,16 @@ namespace Chess
         //
         // Add temporary box for move calculation
         //
+        static private PictureBox Tbox(Point pt, Color clr)
+        {
+            PictureBox box = new PictureBox();
+            box.Name = string.Format("TEMP_{0}{1}", pt.X.ToString(), pt.Y.ToString());
+            box.BackColor = clr;
+            board.Controls.Add(box, pt.X, pt.Y);
+            box.Dock = DockStyle.Fill;
+            box.Margin = new Padding(1);
+            return box;
+        }
         static private PictureBox Tbox(Point pt) 
         {
             PictureBox box = new PictureBox();
@@ -408,25 +420,33 @@ namespace Chess
             foreach (Point pt in tempMoves)
             {
                 if (piece.pieceRank == Rank.KING) // Check if king can dodge
-                    if (!otherMoves.Contains(pt))
-                        result.Add(pt);
+                    if (!otherMoves.Contains(pt)){
+                        //Tbox(pt, Color.Green);
+                        result.Add(pt);}
+                
                 if (checkingPieces.Count == 1)
                 {
-                    if (checkingPieces[0].posPT == pt) // Check if a piece can take
+                    if (checkingPieces[0].posPT == pt){ // Check if a piece can take
                         result.Add(pt);
+                    //Tbox(pt,Color.Blue);
+                }
                     else
                     {
-                        PictureBox box = Tbox(pt);
-                        if (!CalcMovesBB(checkingPieces[0]) // Check if a piece can block
-                            .Contains(piece.isWhite ? WK.posPT : BK.posPT))
-                            result.Add(pt);
-                        board.Controls.Remove(box);
+                        if (otherMoves.Contains(pt) && piece.pieceRank != Rank.KING )
+                        {
+                            PictureBox box = Tbox(pt);
+                            if (!CalcMovesBB(checkingPieces[0]) // Check if a piece can block
+                                .Contains(piece.isWhite ? WK.posPT : BK.posPT)){
+                                result.Add(pt);
+                                Tbox(pt,Color.Yellow);
+                            }
+                            board.Controls.Remove(box);
+                        }
                     }
                 }
             }
 
             return result;
-            //throw new NotImplementedException();
         }
 
     }

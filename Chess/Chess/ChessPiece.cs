@@ -2,14 +2,24 @@
 using System.Drawing;
 using System.Collections.Generic;
 using System;
+using Chess.Properties;
 
 namespace Chess
 {
     internal class ChessPiece
     {
+
         //
         // Variables
         //
+        internal static Dictionary<char, Bitmap[]> Images = new Dictionary<char, Bitmap[]>()
+        {
+            {'R', new Bitmap[2] {Resources.wrook, Resources.brook}},
+            {'K', new Bitmap[2] {Resources.wknight, Resources.bknight}},
+            {'B', new Bitmap[2] {Resources.wbishop, Resources.bbishop}},
+            {'Q', new Bitmap[2] {Resources.wqueen, Resources.bqueen}}
+        };
+
         internal PictureBox box { get; set; }
         internal TableLayoutPanel board;
         internal ChessPiece(PictureBox Box, TableLayoutPanel Board)
@@ -65,20 +75,21 @@ namespace Chess
         //
         // Pawn-specific functions
         //
-        private void PromotePawn()
+        internal void PromotePawn(char rank)
         {
-            box.Name = string.Format("{0}Q{1}P", box.Name[0], box.Name[2]);
-            box.BackgroundImage = isWhite ? Properties.Resources.wqueen : Properties.Resources.bqueen;
+            if (!"RQBK".Contains(rank.ToString())) return;
+            box.Name = box.Name[0].ToString() + rank + box.Name[2].ToString();
+            box.BackgroundImage = Images[rank][Convert.ToInt32(isWhite)];
         }
-        internal void CheckPromote()
+        internal bool CheckPromote()
         {
-            if (pieceRank != 0)
-                return;
-            TableLayoutPanelCellPosition boxpos = board.GetPositionFromControl(box);
-            if (isWhite && boxpos.Row == 0)
-                PromotePawn();
-            else if (!isWhite && boxpos.Row == 7)
-                PromotePawn();
+            if (pieceRank != Rank.PAWN)
+                return false;
+            if (isWhite && pos.Row == 0)
+                return true;
+            else if (!isWhite && pos.Row == 7)
+                return true;
+            return false;
         }
         internal bool canDouble = true;
         internal bool PassElig = false;

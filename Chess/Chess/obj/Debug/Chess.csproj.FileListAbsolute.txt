@@ -8,3 +8,4 @@ U:\GCSE\Computing\C#\Chess\Chess\obj\Debug\Chess.Properties.Resources.resources
 U:\GCSE\Computing\C#\Chess\Chess\obj\Debug\Chess.csproj.GenerateResource.Cache
 U:\GCSE\Computing\C#\Chess\Chess\obj\Debug\Chess.exe
 U:\GCSE\Computing\C#\Chess\Chess\obj\Debug\Chess.pdb
+U:\GCSE\Computing\C#\Chess\Chess\obj\Debug\Chess.upLog.resources

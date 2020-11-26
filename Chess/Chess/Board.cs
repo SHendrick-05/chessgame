@@ -36,8 +36,14 @@ namespace Chess
         //
         // Init
         //
-        public Board()
+        public Main mn;
+        public List<Button> WPr; // Pawn promotion buttons
+        public List<Button> BPr;
+        public List<Button> Spr;
+
+        public Board(Main Mn)
         {
+            mn = Mn;
             InitializeComponent();
             Calcs.board = playBoard; // Set calc variables
             for (int i = 0; i < 8; i++)
@@ -58,7 +64,15 @@ namespace Chess
             }
             Calcs.BK = Calcs.CheckPiece(bKe);
             Calcs.WK = Calcs.CheckPiece(wKe);
+            WPr = new List<Button>()
+            { WbuttonR, WbuttonK, WbuttonB, WbuttonQ };
+            BPr = new List<Button>()
+            { BbuttonR, BbuttonK, BbuttonB, BbuttonQ };
+
         }
+
+
+
         //
         // Colouring
         //
@@ -74,7 +88,6 @@ namespace Chess
         //
         private void closeboard_Click(object sender, EventArgs e) 
         {
-            Main mn = new Main();
             mn.Show();
             Close();
         }
@@ -166,6 +179,7 @@ namespace Chess
         internal bool isMoving = false;
         internal bool isCheck = false;
         internal bool isOver = false;
+        internal ChessPiece promPiece;
 
         
         
@@ -283,8 +297,16 @@ namespace Chess
             {
                 if (Math.Abs(selpos.Row - pos.Row) == 2)
                     selectedPiece.PassElig = true;
-                selectedPiece.CheckPromote();
                 selectedPiece.canDouble = false;
+
+                if (selectedPiece.CheckPromote())
+                {
+                    promPiece = selectedPiece;
+                    Spr = selectedPiece.isWhite ? WPr : BPr;
+                    foreach (Button b in Spr)
+                        b.Visible = true;
+                    notifBoard.Visible = true;
+                }
             }
             //
             // Remove temp boxes
@@ -314,7 +336,8 @@ namespace Chess
             {
                 // Game is over
                 isOver = true;
-                winScreen.Visible = true;
+                notifBoard.Visible = true;
+                winText.Visible = true;
                 turnbox.Visible = false;
                 turntext.Visible = false;
                 replay.Visible = true;
@@ -399,11 +422,22 @@ namespace Chess
 
         private void replay_Click(object sender, EventArgs e)
         {
-            Board brd = new Board();
+            Board brd = new Board(mn);
             brd.Show();
             Close();
         }
-           
+
+        private void ChooseProm(object sender, EventArgs e)
+        {
+            Button btn = (Button)sender;
+            promPiece.PromotePawn(btn.Tag.ToString()[0]);
+            foreach(Button b in Spr)
+                b.Visible = false;
+            notifBoard.Visible = false;
+            Spr = null;
+            promPiece = null;
+        }
+
         //
         //
         //

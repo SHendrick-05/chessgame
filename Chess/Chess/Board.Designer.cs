@@ -48,6 +48,7 @@
             this.a = new System.Windows.Forms.Label();
             this.corner = new System.Windows.Forms.Panel();
             this.rank = new System.Windows.Forms.Panel();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.eight = new System.Windows.Forms.Label();
             this.seven = new System.Windows.Forms.Label();
             this.six = new System.Windows.Forms.Label();
@@ -56,6 +57,7 @@
             this.five = new System.Windows.Forms.Label();
             this.two = new System.Windows.Forms.Label();
             this.one = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.playBoard = new System.Windows.Forms.TableLayoutPanel();
             this.wNg = new System.Windows.Forms.PictureBox();
             this.wBf = new System.Windows.Forms.PictureBox();
@@ -89,7 +91,15 @@
             this.wRh = new System.Windows.Forms.PictureBox();
             this.bRh = new System.Windows.Forms.PictureBox();
             this.wPb = new System.Windows.Forms.PictureBox();
-            this.winScreen = new System.Windows.Forms.Panel();
+            this.notifBoard = new System.Windows.Forms.Panel();
+            this.BbuttonQ = new System.Windows.Forms.Button();
+            this.BbuttonB = new System.Windows.Forms.Button();
+            this.BbuttonK = new System.Windows.Forms.Button();
+            this.BbuttonR = new System.Windows.Forms.Button();
+            this.WbuttonQ = new System.Windows.Forms.Button();
+            this.WbuttonB = new System.Windows.Forms.Button();
+            this.WbuttonK = new System.Windows.Forms.Button();
+            this.WbuttonR = new System.Windows.Forms.Button();
             this.winText = new System.Windows.Forms.Label();
             this.side.SuspendLayout();
             this.top.SuspendLayout();
@@ -128,7 +138,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.wRh)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.bRh)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.wPb)).BeginInit();
-            this.winScreen.SuspendLayout();
+            this.notifBoard.SuspendLayout();
             this.SuspendLayout();
             // 
             // side
@@ -355,6 +365,7 @@
             // rank
             // 
             this.rank.BackColor = System.Drawing.Color.Black;
+            this.rank.Controls.Add(this.panel1);
             this.rank.Controls.Add(this.eight);
             this.rank.Controls.Add(this.seven);
             this.rank.Controls.Add(this.six);
@@ -369,6 +380,13 @@
             this.rank.Name = "rank";
             this.rank.Size = new System.Drawing.Size(45, 552);
             this.rank.TabIndex = 3;
+            // 
+            // panel1
+            // 
+            this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(200, 100);
+            this.panel1.TabIndex = 0;
             // 
             // eight
             // 
@@ -457,6 +475,13 @@
             this.one.Size = new System.Drawing.Size(24, 25);
             this.one.TabIndex = 0;
             this.one.Text = "1";
+            // 
+            // label1
+            // 
+            this.label1.Location = new System.Drawing.Point(0, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(100, 23);
+            this.label1.TabIndex = 0;
             // 
             // playBoard
             // 
@@ -902,26 +927,167 @@
             this.wPb.TabStop = false;
             this.wPb.MouseClick += new System.Windows.Forms.MouseEventHandler(this.PieceClick);
             // 
-            // winScreen
+            // notifBoard
             // 
-            this.winScreen.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(44)))), ((int)(((byte)(51)))));
-            this.winScreen.Controls.Add(this.winText);
-            this.winScreen.Location = new System.Drawing.Point(256, 234);
-            this.winScreen.Name = "winScreen";
-            this.winScreen.Size = new System.Drawing.Size(552, 91);
-            this.winScreen.TabIndex = 5;
-            this.winScreen.Visible = false;
+            this.notifBoard.Controls.Add(this.BbuttonQ);
+            this.notifBoard.Controls.Add(this.BbuttonB);
+            this.notifBoard.Controls.Add(this.BbuttonK);
+            this.notifBoard.Controls.Add(this.BbuttonR);
+            this.notifBoard.Controls.Add(this.WbuttonQ);
+            this.notifBoard.Controls.Add(this.WbuttonB);
+            this.notifBoard.Controls.Add(this.WbuttonK);
+            this.notifBoard.Controls.Add(this.WbuttonR);
+            this.notifBoard.Controls.Add(this.winText);
+            this.notifBoard.Location = new System.Drawing.Point(256, 234);
+            this.notifBoard.Name = "notifBoard";
+            this.notifBoard.Size = new System.Drawing.Size(552, 100);
+            this.notifBoard.TabIndex = 5;
+            this.notifBoard.Visible = false;
+            // 
+            // BbuttonQ
+            // 
+            this.BbuttonQ.BackColor = System.Drawing.Color.Transparent;
+            this.BbuttonQ.BackgroundImage = global::Chess.Properties.Resources.bqueen;
+            this.BbuttonQ.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.BbuttonQ.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlText;
+            this.BbuttonQ.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.BbuttonQ.Location = new System.Drawing.Point(486, 19);
+            this.BbuttonQ.Name = "BbuttonQ";
+            this.BbuttonQ.Size = new System.Drawing.Size(63, 63);
+            this.BbuttonQ.TabIndex = 8;
+            this.BbuttonQ.Tag = "Q";
+            this.BbuttonQ.UseVisualStyleBackColor = false;
+            this.BbuttonQ.Visible = false;
+            this.BbuttonQ.Click += new System.EventHandler(this.ChooseProm);
+            // 
+            // BbuttonB
+            // 
+            this.BbuttonB.BackColor = System.Drawing.Color.Transparent;
+            this.BbuttonB.BackgroundImage = global::Chess.Properties.Resources.bbishop;
+            this.BbuttonB.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.BbuttonB.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlText;
+            this.BbuttonB.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.BbuttonB.Location = new System.Drawing.Point(348, 19);
+            this.BbuttonB.Name = "BbuttonB";
+            this.BbuttonB.Size = new System.Drawing.Size(63, 63);
+            this.BbuttonB.TabIndex = 7;
+            this.BbuttonB.Tag = "B";
+            this.BbuttonB.UseVisualStyleBackColor = false;
+            this.BbuttonB.Visible = false;
+            this.BbuttonB.Click += new System.EventHandler(this.ChooseProm);
+            // 
+            // BbuttonK
+            // 
+            this.BbuttonK.BackColor = System.Drawing.Color.Transparent;
+            this.BbuttonK.BackgroundImage = global::Chess.Properties.Resources.bknight;
+            this.BbuttonK.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.BbuttonK.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlText;
+            this.BbuttonK.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.BbuttonK.Location = new System.Drawing.Point(210, 19);
+            this.BbuttonK.Name = "BbuttonK";
+            this.BbuttonK.Size = new System.Drawing.Size(63, 63);
+            this.BbuttonK.TabIndex = 6;
+            this.BbuttonK.Tag = "N";
+            this.BbuttonK.UseVisualStyleBackColor = false;
+            this.BbuttonK.Visible = false;
+            this.BbuttonK.Click += new System.EventHandler(this.ChooseProm);
+            // 
+            // BbuttonR
+            // 
+            this.BbuttonR.BackColor = System.Drawing.Color.Transparent;
+            this.BbuttonR.BackgroundImage = global::Chess.Properties.Resources.brook;
+            this.BbuttonR.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.BbuttonR.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlText;
+            this.BbuttonR.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.BbuttonR.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.BbuttonR.ForeColor = System.Drawing.Color.Transparent;
+            this.BbuttonR.Location = new System.Drawing.Point(72, 19);
+            this.BbuttonR.Name = "BbuttonR";
+            this.BbuttonR.Size = new System.Drawing.Size(63, 63);
+            this.BbuttonR.TabIndex = 5;
+            this.BbuttonR.Tag = "R";
+            this.BbuttonR.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.BbuttonR.UseVisualStyleBackColor = false;
+            this.BbuttonR.Visible = false;
+            this.BbuttonR.Click += new System.EventHandler(this.ChooseProm);
+            // 
+            // WbuttonQ
+            // 
+            this.WbuttonQ.BackColor = System.Drawing.Color.Transparent;
+            this.WbuttonQ.BackgroundImage = global::Chess.Properties.Resources.wqueen;
+            this.WbuttonQ.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.WbuttonQ.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
+            this.WbuttonQ.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.WbuttonQ.Location = new System.Drawing.Point(417, 19);
+            this.WbuttonQ.Name = "WbuttonQ";
+            this.WbuttonQ.Size = new System.Drawing.Size(63, 63);
+            this.WbuttonQ.TabIndex = 4;
+            this.WbuttonQ.Tag = "Q";
+            this.WbuttonQ.UseVisualStyleBackColor = false;
+            this.WbuttonQ.Visible = false;
+            this.WbuttonQ.Click += new System.EventHandler(this.ChooseProm);
+            // 
+            // WbuttonB
+            // 
+            this.WbuttonB.BackColor = System.Drawing.Color.Transparent;
+            this.WbuttonB.BackgroundImage = global::Chess.Properties.Resources.wbishop;
+            this.WbuttonB.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.WbuttonB.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
+            this.WbuttonB.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.WbuttonB.Location = new System.Drawing.Point(279, 19);
+            this.WbuttonB.Name = "WbuttonB";
+            this.WbuttonB.Size = new System.Drawing.Size(63, 63);
+            this.WbuttonB.TabIndex = 3;
+            this.WbuttonB.Tag = "B";
+            this.WbuttonB.UseVisualStyleBackColor = false;
+            this.WbuttonB.Visible = false;
+            this.WbuttonB.Click += new System.EventHandler(this.ChooseProm);
+            // 
+            // WbuttonK
+            // 
+            this.WbuttonK.BackColor = System.Drawing.Color.Transparent;
+            this.WbuttonK.BackgroundImage = global::Chess.Properties.Resources.wknight;
+            this.WbuttonK.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.WbuttonK.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
+            this.WbuttonK.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.WbuttonK.Location = new System.Drawing.Point(141, 19);
+            this.WbuttonK.Name = "WbuttonK";
+            this.WbuttonK.Size = new System.Drawing.Size(63, 63);
+            this.WbuttonK.TabIndex = 2;
+            this.WbuttonK.Tag = "N";
+            this.WbuttonK.UseVisualStyleBackColor = false;
+            this.WbuttonK.Visible = false;
+            this.WbuttonK.Click += new System.EventHandler(this.ChooseProm);
+            // 
+            // WbuttonR
+            // 
+            this.WbuttonR.BackColor = System.Drawing.Color.Transparent;
+            this.WbuttonR.BackgroundImage = global::Chess.Properties.Resources.wrook;
+            this.WbuttonR.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.WbuttonR.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
+            this.WbuttonR.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.WbuttonR.ForeColor = System.Drawing.Color.Transparent;
+            this.WbuttonR.Location = new System.Drawing.Point(3, 19);
+            this.WbuttonR.Name = "WbuttonR";
+            this.WbuttonR.Size = new System.Drawing.Size(63, 63);
+            this.WbuttonR.TabIndex = 1;
+            this.WbuttonR.Tag = "R";
+            this.WbuttonR.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.WbuttonR.UseVisualStyleBackColor = false;
+            this.WbuttonR.Visible = false;
+            this.WbuttonR.Click += new System.EventHandler(this.ChooseProm);
             // 
             // winText
             // 
             this.winText.AutoSize = true;
-            this.winText.Font = new System.Drawing.Font("Lucida Sans", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.winText.Font = new System.Drawing.Font("Century Gothic", 36F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.winText.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(120)))), ((int)(((byte)(138)))));
-            this.winText.Location = new System.Drawing.Point(152, 26);
+            this.winText.Location = new System.Drawing.Point(105, 19);
             this.winText.Name = "winText";
-            this.winText.Size = new System.Drawing.Size(249, 39);
+            this.winText.Size = new System.Drawing.Size(319, 58);
             this.winText.TabIndex = 0;
             this.winText.Text = "TEAM_ WINS!";
+            this.winText.Visible = false;
             // 
             // Board
             // 
@@ -929,7 +1095,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(34)))), ((int)(((byte)(40)))));
             this.ClientSize = new System.Drawing.Size(808, 597);
-            this.Controls.Add(this.winScreen);
+            this.Controls.Add(this.notifBoard);
             this.Controls.Add(this.playBoard);
             this.Controls.Add(this.rank);
             this.Controls.Add(this.file);
@@ -978,8 +1144,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.wRh)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.bRh)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.wPb)).EndInit();
-            this.winScreen.ResumeLayout(false);
-            this.winScreen.PerformLayout();
+            this.notifBoard.ResumeLayout(false);
+            this.notifBoard.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -1045,8 +1211,18 @@
         private System.Windows.Forms.TextBox turnbox;
         private System.Windows.Forms.Label turntext;
         private System.Windows.Forms.TextBox moves;
-        private System.Windows.Forms.Panel winScreen;
-        private System.Windows.Forms.Label winText;
         private System.Windows.Forms.Button replay;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Panel notifBoard;
+        private System.Windows.Forms.Label winText;
+        private System.Windows.Forms.Button BbuttonQ;
+        private System.Windows.Forms.Button BbuttonB;
+        private System.Windows.Forms.Button BbuttonK;
+        private System.Windows.Forms.Button BbuttonR;
+        private System.Windows.Forms.Button WbuttonQ;
+        private System.Windows.Forms.Button WbuttonB;
+        private System.Windows.Forms.Button WbuttonK;
+        private System.Windows.Forms.Button WbuttonR;
     }
 }
