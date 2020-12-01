@@ -36,14 +36,12 @@ namespace Chess
         //
         // Init
         //
-        public Main mn;
         public List<Button> WPr; // Pawn promotion buttons
         public List<Button> BPr;
         public List<Button> Spr;
 
-        public Board(Main Mn)
+        public Board()
         {
-            mn = Mn;
             InitializeComponent();
             Calcs.board = playBoard; // Set calc variables
             for (int i = 0; i < 8; i++)
@@ -68,7 +66,6 @@ namespace Chess
             { WbuttonR, WbuttonK, WbuttonB, WbuttonQ };
             BPr = new List<Button>()
             { BbuttonR, BbuttonK, BbuttonB, BbuttonQ };
-
         }
 
 
@@ -88,6 +85,7 @@ namespace Chess
         //
         private void closeboard_Click(object sender, EventArgs e) 
         {
+            Main mn = new Main();
             mn.Show();
             Close();
         }
@@ -173,6 +171,7 @@ namespace Chess
         //
 
         // Vars
+        internal Dictionary<ChessPiece, List<Point>> teamMoves;
         internal List<ChessPiece> checkingPieces = new List<ChessPiece>();
         internal ChessPiece selectedPiece;
         internal bool whiteTurn = true;
@@ -216,9 +215,9 @@ namespace Chess
                 return;
             }
         }
-        //
+
+
         // Clear temp boxes
-        //
         internal void ClearTempBoxes()
         {
             for (int i = 0; i < 8; i++)
@@ -235,9 +234,9 @@ namespace Chess
                 }
             }
         }
-        //
+
+
         // Moving for attacking pieces
-        //
         internal void AttackMove(object sender, MouseEventArgs e)
         {
             PictureBox box = (PictureBox)sender;
@@ -254,21 +253,20 @@ namespace Chess
             }
             else return;
         }
-        //
+
         // Main move function
-        //
         internal void MovePiece(object sender, MouseEventArgs e, bool attack=false)
         {
             isCheck = false;
-            //
+
+
             // Get vars + Positions
-            //
             PictureBox box = (PictureBox)sender;
             TableLayoutPanelCellPosition pos = playBoard.GetPositionFromControl(box);
             TableLayoutPanelCellPosition selpos = selectedPiece.pos;
-            //
+
+
             // Passant check before move
-            //
             bool ep = false;
             if (box.Name.Contains("DEL") 
                 && selectedPiece.pieceRank == Rank.PAWN
@@ -276,23 +274,24 @@ namespace Chess
             {
                 ep = true;
                 attack = true;
-                playBoard.Controls.Remove
+                playBoard.Controls.Remove // Capture the en passant piece
                     (playBoard.GetControlFromPosition
                     (pos.Column, selpos.Row));
             }
-            //
+
+
             // Move the piece.
-            //
             playBoard.Controls.Remove(box);
             playBoard.Controls.Add(selectedPiece.box, pos.Column, pos.Row);
-            //
-            // Pawn checks
-            //
+
+            // En passant
             foreach (ChessPiece pc in Calcs.pieces)
             {
                 if (pc.isWhite == selectedPiece.isWhite)
                     pc.PassElig = false;
             }
+
+            // Pawn promotion 
             if (selectedPiece.pieceRank == Rank.PAWN)
             {
                 if (Math.Abs(selpos.Row - pos.Row) == 2)
@@ -308,30 +307,32 @@ namespace Chess
                     notifBoard.Visible = true;
                 }
             }
-            //
+
             // Remove temp boxes
-            //
             ClearTempBoxes();
-            //
+
             // Change turn text
-            //
             whiteTurn = !whiteTurn;
+
+            // Prep new moves
+            teamMoves = Calcs.calcMovesG(whiteTurn, checkingPieces);
+
             if (whiteTurn)
                 turnbox.Text = "WHITE";
             else
                 turnbox.Text = "BLACK";
             isMoving = false;
-            //
+
+
             // Get check
-            //
             List<ChessPiece> isCheckL = Calcs.CheckCheck(whiteTurn);
             checkingPieces = isCheckL;
             bool isCheckB = isCheckL.Count != 0;
             isCheck = isCheckB;
-            //
+
+
             // Get CM
-            //
-            bool ifMoves = Calcs.NMCheck(whiteTurn, isCheckL);
+            bool ifMoves = teamMoves.Values.Any(i => i.Count != 0);
             if (!ifMoves) 
             {
                 // Game is over
@@ -371,6 +372,8 @@ namespace Chess
             // Clear selected piece
             //
             selectedPiece = null;
+
+
         }
         //
         // Handle piece clicks
@@ -392,37 +395,37 @@ namespace Chess
             isMoving = true;
             //
             // Get moves + Calculate
-            // Variables
+            //
+            if (teamMoves == null) teamMoves = Calcs.calcMovesG(whiteTurn, checkingPieces);
+
+            if (!teamMoves.Keys.Contains(selpiece)) { throw new Exception("ERROR IN PIECE HANDLING"); return; }
             selectedPiece = selpiece;
-            List<Point> moves = Calcs.CalcMovesG(selpiece, checkingPieces);
+            List<Point> moves = teamMoves[selpiece];
             List<Point> discard = new List<Point>();
-            foreach (Point pt in moves)
+            foreach (Point pt in moves) // Remove unusable moves
             {
-                int col = pt.X;
-                int row = pt.Y;
                 PictureBox cont = (PictureBox)playBoard.GetControlFromPosition(pt.X, pt.Y);
                 ChessPiece contp = Calcs.CheckPiece(cont);
-                //
-                // Discard unusable moves
-                //
-                if ( col < 0 || col > 7 || row < 0 || row > 7 )
-                    discard.Add(pt);
-                else if ( cont != null
-                    && cont.BackColor != Color.DarkGray && contp.isWhite == selpiece.isWhite )
-                    discard.Add(pt);
-                else
-                    AddTempBox(row, col);
+                if (cont != null)
+                {
+                    if (cont.Name.Contains("TEMP")) discard.Add(pt);
+                    else if (contp != null && contp.isWhite == selpiece.isWhite) discard.Add(pt);
+                    else AddTempBox(pt.Y, pt.X);
+                }
+                else AddTempBox(pt.Y, pt.X);
             }
-            if (moves.Count == discard.Count)
+            if (discard.Count == moves.Count)
             {
                 isMoving = false;
                 return;
             }
+
+
         }
 
         private void replay_Click(object sender, EventArgs e)
         {
-            Board brd = new Board(mn);
+            Board brd = new Board();
             brd.Show();
             Close();
         }
@@ -452,6 +455,34 @@ namespace Chess
  * 
  * Old code:
  * 
+ * 
+ *          selectedPiece = selpiece;
+            List<Point> moves = Calcs.calcMoveG(selpiece, checkingPieces);
+            List<Point> discard = new List<Point>();
+            foreach (Point pt in moves)
+            {
+                int col = pt.X;
+                int row = pt.Y;
+                PictureBox cont = (PictureBox)playBoard.GetControlFromPosition(pt.X, pt.Y);
+                ChessPiece contp = Calcs.CheckPiece(cont);
+                //
+                // Discard unusable moves
+                //
+                if ( col < 0 || col > 7 || row < 0 || row > 7 )
+                    discard.Add(pt);
+                else if ( cont != null
+                    && cont.BackColor != Color.DarkGray && contp.isWhite == selpiece.isWhite )
+                    discard.Add(pt);
+                else
+                    AddTempBox(row, col);
+            }
+            if (moves.Count == discard.Count)
+            {
+                isMoving = false;
+                return;
+            }
+
+
  *  
             string name = box.Name;
             bool isWhite = name[0] == 'w';

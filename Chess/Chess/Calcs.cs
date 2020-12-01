@@ -54,26 +54,19 @@ namespace Chess
         //
         // Check check
         //
-        static internal List<ChessPiece> CheckCheck(bool isWhite) // f team is in check
+        static internal List<ChessPiece> CheckCheck(bool isWhite) // If team is in check
         {
-            if (!board.Controls.Contains(isWhite ? WK.box : BK.box)) return new List<ChessPiece>() { isWhite ? BK : WK };
-            List<ChessPiece> result = new List<ChessPiece>();
-            foreach (ChessPiece pc in isWhite ? bP : wP)
-            {
-                if (CalcMovesBB(pc).Contains(isWhite ? WK.posPT : BK.posPT))
-                    result.Add(pc);
-            }
-            return result;
+            var pMoves = calcMovesBB(!isWhite);
+            return pMoves.Keys.Where(i => pMoves[i].Contains(isWhite ? WK.posPT : BK.posPT)).ToList();
         }
         //
         // NM Check (Can check for stalemate, is SM if the third output is "false"
         //
-        static internal bool NMCheck(bool isWhite, List<ChessPiece> Checks) // Returns if no moves.
+        static internal bool NMCheck(bool isWhite, List<ChessPiece> Checks) // Returns if moves.
         {
-            if (!board.Controls.Contains(isWhite ? WK.box : BK.box)) return false;
             foreach (ChessPiece pc in isWhite ? wP : bP)
             {
-                if (CalcMovesG(pc, Checks).Count != 0)
+                if (calcMoveG(pc).Count != 0)
                     return true;
             }
             return false;
@@ -317,9 +310,9 @@ namespace Chess
 
 
         //
-        // Calculate moves public class, for other files to use [basic]
+        // Calculate moves public class, for other files to use
         //
-        static public List<Point> CalcMovesBB(ChessPiece piece)
+        static public List<Point> calcMoveBB(ChessPiece piece)
         {
             List<Point> moves;
             List<Point> result = new List<Point>();
@@ -350,6 +343,7 @@ namespace Chess
             }
             foreach (Point pt in moves)
             { //Remove invalid moves
+                if (pt.X > 7 || pt.Y > 7 || pt.X < 0 || pt.Y < 0) continue;
                 PictureBox box = (PictureBox)board.GetControlFromPosition(pt.X, pt.Y);
                 if (box != null)
                 {
@@ -362,9 +356,9 @@ namespace Chess
             }
             return result;
         }
-        static public List<Point> CalcMovesG(ChessPiece piece)
+        static public List<Point> calcMoveG(ChessPiece piece)
         {
-            List<Point> result = CalcMovesBB(piece);
+            List<Point> result = calcMoveBB(piece);
             List<Point> final = new List<Point>();
             // Stop them willfully checking themselves.
             foreach (Point pt in result)
@@ -383,16 +377,6 @@ namespace Chess
         //
         // Add temporary box for move calculation
         //
-        static private PictureBox Tbox(Point pt, Color clr)
-        {
-            PictureBox box = new PictureBox();
-            box.Name = string.Format("TEMP_{0}{1}", pt.X.ToString(), pt.Y.ToString());
-            box.BackColor = clr;
-            board.Controls.Add(box, pt.X, pt.Y);
-            box.Dock = DockStyle.Fill;
-            box.Margin = new Padding(1);
-            return box;
-        }
         static private PictureBox Tbox(Point pt) 
         {
             PictureBox box = new PictureBox();
@@ -406,40 +390,34 @@ namespace Chess
         //
         // Overload for move calculation, for moving in check
         //
-        static public List<Point> CalcMovesG(ChessPiece piece, List<ChessPiece> checkingPieces)
+        static public List<Point> calcMoveG(ChessPiece piece, List<ChessPiece> checkingPieces)
         {
-            List<Point> tempMoves = CalcMovesG(piece);
+            List<Point> tempMoves = calcMoveG(piece);
             if (checkingPieces.Count == 0) return tempMoves; // Make sure they're actually in check
             List<Point> result = new List<Point>();
             List<Point> otherMoves = new List<Point>();
             foreach(ChessPiece pc in piece.isWhite ? bP : wP)
             {
-                otherMoves = otherMoves.Union(CalcMovesBB(pc)).ToList();
+                otherMoves = otherMoves.Union(calcMoveBB(pc)).ToList();
             } // Get all possible moves for other team
 
             foreach (Point pt in tempMoves)
             {
                 if (piece.pieceRank == Rank.KING) // Check if king can dodge
-                    if (!otherMoves.Contains(pt)){
-                        //Tbox(pt, Color.Green);
-                        result.Add(pt);}
-                
+                    if (!otherMoves.Contains(pt))
+                        result.Add(pt);
                 if (checkingPieces.Count == 1)
                 {
-                    if (checkingPieces[0].posPT == pt){ // Check if a piece can take
+                    if (checkingPieces[0].posPT == pt) // Check if a piece can take
                         result.Add(pt);
-                    //Tbox(pt,Color.Blue);
-                }
                     else
                     {
                         if (otherMoves.Contains(pt) && piece.pieceRank != Rank.KING )
                         {
                             PictureBox box = Tbox(pt);
-                            if (!CalcMovesBB(checkingPieces[0]) // Check if a piece can block
-                                .Contains(piece.isWhite ? WK.posPT : BK.posPT)){
+                            if (!calcMoveBB(checkingPieces[0]) // Check if a piece can block
+                                .Contains(piece.isWhite ? WK.posPT : BK.posPT))
                                 result.Add(pt);
-                                Tbox(pt,Color.Yellow);
-                            }
                             board.Controls.Remove(box);
                         }
                     }
@@ -449,6 +427,29 @@ namespace Chess
             return result;
         }
 
+        public static Dictionary<ChessPiece, List<Point>> calcMovesG(bool isWhite)
+        {
+            Dictionary<ChessPiece, List<Point>> result = new Dictionary<ChessPiece, List<Point>>();
+            foreach (ChessPiece pc in isWhite ? wP : bP)
+                result.Add(pc, calcMoveG(pc));
+            return result;
+        }
+
+        public static Dictionary<ChessPiece, List<Point>> calcMovesG(bool isWhite, List<ChessPiece> checkingPieces)
+        {
+            Dictionary<ChessPiece, List<Point>> result = new Dictionary<ChessPiece, List<Point>>();
+            foreach (ChessPiece pc in isWhite ? wP : bP)
+                result.Add(pc, calcMoveG(pc, checkingPieces));
+            return result;
+        }
+
+        public static Dictionary<ChessPiece, List<Point>> calcMovesBB(bool isWhite)
+        {
+            Dictionary<ChessPiece, List<Point>> result = new Dictionary<ChessPiece, List<Point>>();
+            foreach(ChessPiece pc in isWhite ? wP : bP)
+                result.Add(pc, calcMoveBB(pc));
+            return result;
+        }
     }
 }
     //

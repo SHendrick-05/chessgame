@@ -42,7 +42,7 @@ namespace Chess
         //
         private void Play(object sender, EventArgs e)
         {
-            Board brd = new Board(this);
+            Board brd = new Board();
             brd.Show();
             Hide();
         }
