@@ -145,8 +145,7 @@ namespace Chess
                         result.Add(pt);
                         continue;
                     }
-                    if (pieceC.isWhite != piece.isWhite) // Allow for capture, Disallow tempboxes
-                        result.Add(pt);
+                    result.Add(pt);
                     break;
                 }
 
@@ -231,6 +230,8 @@ namespace Chess
                     if (ppiece.isWhite != piece.isWhite)
                         result.Add(new Point(col + x, row + offset));
                 }
+                else if (pbox != null && pbox.BackColor == Color.DarkGray)
+                    result.Add(new Point(col + x, row + offset));
 
                 // En Passant
                 pbox = (PictureBox)board.GetControlFromPosition(col + x, row);
@@ -303,11 +304,31 @@ namespace Chess
         {
             List<Point> str = CalcLines(piece, 2); // Line 1 long
             List<Point> diag = CalcDiag(piece, 2); // Diag 1 long
-            return str.Concat(diag)
-                .ToList(); // Merge lists
+            List<Point> result = new List<Point>();
+            int pChec = piece.isWhite ? -1 : 1;
+            foreach(Point pt in str.Concat(diag))
+            {
+                bool d = false;
+                for (int x = 1; x >= -1; x -= 2)
+                {
+                    PictureBox box = (PictureBox)board.GetControlFromPosition(pt.X + x, pt.Y + pChec);
+                    ChessPiece pc = CheckPiece(box);
+                    if (pc != null
+                        && pc.isWhite != piece.isWhite
+                        && pc.pieceRank == Rank.PAWN)
+                            d = true;
+                }
+                if (!d) result.Add(pt);
+            }
+            return result;
         }
 
-
+        static private List<Point> otherMoves(bool white)
+        {
+            List<Point> otherMoves = (white ? bP : wP).Aggregate( // Get all possible moves for other team
+                new List<Point>(), (curr, next) => curr.Union(calcMoveBB(next)).ToList());
+            return otherMoves;
+        }
 
         //
         // Calculate moves public class, for other files to use
@@ -365,12 +386,28 @@ namespace Chess
             {
                 PictureBox box = piece.box;
                 int scol = piece.pos.Column, srow = piece.pos.Row;
-                piece.canCollide = false;
-                PictureBox temp = Tbox(pt);
-                if (CheckCheck(piece.isWhite).Count == 0)
-                    final.Add(pt);
-                piece.canCollide = true;
-                board.Controls.Remove(temp);
+
+                if (board.GetControlFromPosition(pt.X, pt.Y) == null)
+                {
+                    piece.canCollide = false;
+                    PictureBox temp = Tbox(pt);
+                    List<Point> other = otherMoves(piece.isWhite);
+                    if (piece.pieceRank != Rank.KING && !other.Contains(piece.isWhite ? WK.posPT : BK.posPT))
+                        final.Add(pt);
+                    else if (piece.pieceRank == Rank.KING && !other.Contains(pt))
+                        final.Add(pt);
+                    piece.canCollide = true;
+                    board.Controls.Remove(temp);
+                }
+                else
+                {
+                    piece.canCollide = false;
+                    List<Point> other = otherMoves(piece.isWhite);
+                    if (piece.pieceRank == Rank.KING && !other.Contains(pt))
+                        final.Add(pt);
+                    else if (piece.pieceRank != Rank.KING && !other.Contains(piece.isWhite ? WK.posPT : BK.posPT))
+                        final.Add(pt);
+                }
             }
             return final;
         }
@@ -393,26 +430,28 @@ namespace Chess
         static public List<Point> calcMoveG(ChessPiece piece, List<ChessPiece> checkingPieces)
         {
             List<Point> tempMoves = calcMoveG(piece);
-            if (checkingPieces.Count == 0) return tempMoves; // Make sure they're actually in check
+            if (checkingPieces.Count == 0) 
+                return tempMoves; // Make sure they're actually in check
             List<Point> result = new List<Point>();
-            List<Point> otherMoves = new List<Point>();
-            foreach(ChessPiece pc in piece.isWhite ? bP : wP)
-            {
-                otherMoves = otherMoves.Union(calcMoveBB(pc)).ToList();
-            } // Get all possible moves for other team
+            List<Point> otherMoves = (piece.isWhite ? bP : wP).Aggregate( // Get all possible moves for other team
+                new List<Point>(), (curr, next) => curr.Union(calcMoveBB(next)).ToList());
 
+            int i = 0;
             foreach (Point pt in tempMoves)
             {
+                i++;
                 if (piece.pieceRank == Rank.KING) // Check if king can dodge
                     if (!otherMoves.Contains(pt))
                         result.Add(pt);
+                if (piece.pieceRank == Rank.ROOK)
+                    Console.WriteLine("TEST");
                 if (checkingPieces.Count == 1)
                 {
                     if (checkingPieces[0].posPT == pt) // Check if a piece can take
                         result.Add(pt);
                     else
                     {
-                        if (otherMoves.Contains(pt) && piece.pieceRank != Rank.KING )
+                        if (otherMoves.Contains(pt) && piece.pieceRank != Rank.KING)
                         {
                             PictureBox box = Tbox(pt);
                             if (!calcMoveBB(checkingPieces[0]) // Check if a piece can block
@@ -423,6 +462,7 @@ namespace Chess
                     }
                 }
             }
+            Console.WriteLine(i);
 
             return result;
         }

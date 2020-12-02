@@ -11,6 +11,8 @@ using System.Windows.Forms;
 using System.IO;
 using System.Reflection;
 
+
+
 namespace Chess
 {
     public partial class Board : Form
@@ -315,7 +317,7 @@ namespace Chess
             whiteTurn = !whiteTurn;
 
             // Prep new moves
-            teamMoves = Calcs.calcMovesG(whiteTurn, checkingPieces);
+
 
             if (whiteTurn)
                 turnbox.Text = "WHITE";
@@ -329,6 +331,8 @@ namespace Chess
             checkingPieces = isCheckL;
             bool isCheckB = isCheckL.Count != 0;
             isCheck = isCheckB;
+
+            teamMoves = Calcs.calcMovesG(whiteTurn, checkingPieces);
 
 
             // Get CM
@@ -397,8 +401,9 @@ namespace Chess
             // Get moves + Calculate
             //
             if (teamMoves == null) teamMoves = Calcs.calcMovesG(whiteTurn, checkingPieces);
-
+#pragma warning disable 0162
             if (!teamMoves.Keys.Contains(selpiece)) { throw new Exception("ERROR IN PIECE HANDLING"); return; }
+#pragma warning restore 0162
             selectedPiece = selpiece;
             List<Point> moves = teamMoves[selpiece];
             List<Point> discard = new List<Point>();
