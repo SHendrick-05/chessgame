@@ -34,7 +34,7 @@
             this.play = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.source = new System.Windows.Forms.Button();
-            this.upLog = new System.Windows.Forms.Button();
+            this.music = new System.Windows.Forms.Button();
             this.top.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -100,8 +100,8 @@
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(674, 228);
             this.textBox1.TabIndex = 2;
-            this.textBox1.Text = "-Checkmate and stalemate completed\r\n-Updated notation to allow for these\r\n\r\n-TODO" +
-    ":\r\nEdge cases\r\nChoice in pawn promotion\r\n\r\nBy Sean Hendrick 10P1";
+            this.textBox1.Text = "-Finished some check edge cases\r\n-Added promotion choice\r\n\r\n-TODO:\r\nEdge cases\r\nD" +
+    "raw offer\r\n\r\nBy Sean Hendrick 10P1";
             // 
             // source
             // 
@@ -116,18 +116,18 @@
             this.source.UseVisualStyleBackColor = true;
             this.source.Click += new System.EventHandler(this.source_Click);
             // 
-            // upLog
+            // music
             // 
-            this.upLog.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.upLog.Font = new System.Drawing.Font("Century Gothic", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.upLog.ForeColor = System.Drawing.SystemColors.Control;
-            this.upLog.Location = new System.Drawing.Point(265, 318);
-            this.upLog.Name = "upLog";
-            this.upLog.Size = new System.Drawing.Size(178, 42);
-            this.upLog.TabIndex = 4;
-            this.upLog.Text = "Update log";
-            this.upLog.UseVisualStyleBackColor = true;
-            this.upLog.Click += new System.EventHandler(this.upLog_Click);
+            this.music.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.music.Font = new System.Drawing.Font("Century Gothic", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.music.ForeColor = System.Drawing.SystemColors.Control;
+            this.music.Location = new System.Drawing.Point(268, 318);
+            this.music.Name = "music";
+            this.music.Size = new System.Drawing.Size(178, 42);
+            this.music.TabIndex = 4;
+            this.music.Text = "Music off";
+            this.music.UseVisualStyleBackColor = true;
+            this.music.Click += new System.EventHandler(this.music_Click);
             // 
             // Main
             // 
@@ -135,7 +135,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(44)))), ((int)(((byte)(51)))));
             this.ClientSize = new System.Drawing.Size(704, 405);
-            this.Controls.Add(this.upLog);
+            this.Controls.Add(this.music);
             this.Controls.Add(this.source);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.play);
@@ -158,7 +158,7 @@
         private System.Windows.Forms.Label title;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button source;
-        private System.Windows.Forms.Button upLog;
+        private System.Windows.Forms.Button music;
 
     }
 }

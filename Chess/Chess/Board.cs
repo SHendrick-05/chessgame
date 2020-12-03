@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.IO;
-using System.Reflection;
+using System.Media;
 
 
 
@@ -41,6 +36,8 @@ namespace Chess
         public List<Button> WPr; // Pawn promotion buttons
         public List<Button> BPr;
         public List<Button> Spr;
+        public const string checkMSoundPath = @"c:\Windows\Media\Speech Off.wav";
+        public const string checkSoundPath = @"c:\Windows\Media\Windows Exclamation.wav";
 
         public Board()
         {
@@ -282,10 +279,19 @@ namespace Chess
             }
 
 
+
             // Move the piece.
             playBoard.Controls.Remove(box);
             playBoard.Controls.Add(selectedPiece.box, pos.Column, pos.Row);
 
+            // Remove colouring
+            foreach (Control ct in playBoard.Controls)
+            {
+                if (ct.BackColor != Color.Transparent
+                    && ct.BackColor != Color.DarkGray)
+                    ct.BackColor = Color.Transparent;
+            }
+            
             // En passant
             foreach (ChessPiece pc in Calcs.pieces)
             {
@@ -334,6 +340,13 @@ namespace Chess
 
             teamMoves = Calcs.calcMovesG(whiteTurn, checkingPieces);
 
+            // Get colouring for checking pieces
+            if (isCheckB)
+            {
+                foreach (ChessPiece pc in isCheckL)
+                    pc.box.BackColor = Color.Red;
+                (whiteTurn ? wKe : bKe).BackColor = Color.Yellow;
+            }
 
             // Get CM
             bool ifMoves = teamMoves.Values.Any(i => i.Count != 0);
@@ -352,6 +365,11 @@ namespace Chess
                     winText.Text = whiteTurn ? "BLACK WINS!" : "WHITE WINS!";
                 else
                     winText.Text = "STALEMATE!";
+            }
+            else if (isCheckB) // Check sound
+            {
+                SoundPlayer checkSound = new SoundPlayer(checkSoundPath);
+                checkSound.Play();
             }
 
             // Update moves

@@ -18,5 +18,4 @@ U:\GCSE\Computing\C#\Chess2\Chess\Chess\obj\Debug\Chess.csprojResolveAssemblyRef
 U:\GCSE\Computing\C#\Chess2\Chess\Chess\obj\Debug\Chess.Board.resources
 U:\GCSE\Computing\C#\Chess2\Chess\Chess\obj\Debug\Chess.Main.resources
 U:\GCSE\Computing\C#\Chess2\Chess\Chess\obj\Debug\Chess.Properties.Resources.resources
-U:\GCSE\Computing\C#\Chess2\Chess\Chess\obj\Debug\Chess.upLog.resources
 U:\GCSE\Computing\C#\Chess2\Chess\Chess\obj\Debug\Chess.csproj.GenerateResource.Cache

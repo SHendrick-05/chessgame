@@ -311,14 +311,18 @@ namespace Chess
                 bool d = false;
                 for (int x = 1; x >= -1; x -= 2)
                 {
+                    PictureBox cap = (PictureBox)board.GetControlFromPosition(pt.X, pt.Y);
+                    ChessPiece capc = CheckPiece(cap);
                     PictureBox box = (PictureBox)board.GetControlFromPosition(pt.X + x, pt.Y + pChec);
                     ChessPiece pc = CheckPiece(box);
                     if (pc != null
                         && pc.isWhite != piece.isWhite
-                        && pc.pieceRank == Rank.PAWN)
+                        && pc.pieceRank == Rank.PAWN
+                        && (capc == null || capc.pieceRank != Rank.KING))
                             d = true;
                 }
                 if (!d) result.Add(pt);
+
             }
             return result;
         }
@@ -414,10 +418,10 @@ namespace Chess
         //
         // Add temporary box for move calculation
         //
-        static private PictureBox Tbox(Point pt) 
+        static private PictureBox Tbox(Point pt, string name="TEMP") 
         {
             PictureBox box = new PictureBox();
-            box.Name = string.Format("TEMP_{0}{1}", pt.X.ToString(), pt.Y.ToString());
+            box.Name = string.Format(name+"_{0}{1}", pt.X.ToString(), pt.Y.ToString());
             box.BackColor = Color.DarkGray;
             board.Controls.Add(box, pt.X, pt.Y);
             box.Dock = DockStyle.Fill;

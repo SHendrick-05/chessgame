@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Media;
 
 namespace Chess
 {
@@ -30,12 +31,36 @@ namespace Chess
                 SendMessage(Handle, WM_NCLBUTTONDOWN, HT_CAPTION, 0);
             }
         }
+
+        [DllImport("winmm.dll")]
+        static extern Int32 mciSendString(String command, StringBuilder buffer, Int32 bufferSize, IntPtr hwndCallback);
+
+        public static void openMidi(String fileName, String alias)
+        {
+            mciSendString("open " + fileName + " type sequencer alias " + alias, new StringBuilder(), 0, new IntPtr());
+            mciSendString("play " + alias, new StringBuilder(), 0, new IntPtr());
+        }
+        public static void playMidi(String alias)
+        {
+            
+            mciSendString("resume " + alias, new StringBuilder(), 0, new IntPtr());
+        }
+
+        public static void pauseMidi(String alias)
+        {
+            mciSendString("pause " + alias, null, 0, new IntPtr());
+        }
+
+        public bool musicPlaying = true;
+
         //
         // Init
         //
         public Main()
         {
             InitializeComponent();
+            openMidi(@"c:\Windows\media\onestop.mid", "Onestop");
+            playMidi("Onestop");
         }
         //
         // Button funcs
@@ -57,10 +82,19 @@ namespace Chess
             System.Diagnostics.Process.Start("https://github.com/SHendrick-Turton/chessgame");
         }
 
-        private void upLog_Click(object sender, EventArgs e)
+        private void music_Click(object sender, EventArgs e)
         {
-            upLog log = new upLog();
-            log.ShowDialog();
+            if (musicPlaying)
+            {
+                pauseMidi("Onestop");
+                music.Text = "Music on";
+            }
+            else
+            {
+                playMidi("Onestop");
+                music.Text = "Music off";
+            }
+            musicPlaying = !musicPlaying;
         }
     }
 }
